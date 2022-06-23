@@ -1,0 +1,28 @@
+version: "3.3"
+
+services:
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - ./data/db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_DATABASE: psychotesting
+  backend:
+    build:
+      context: ./server
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./server:/code
+    ports:
+      - "8000:8000"
+    environment:
+      MYSQL_DB: psychotesting
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 12345678
+      MYSQL_HOST: mysql
+    depends_on:
+      - mysql
