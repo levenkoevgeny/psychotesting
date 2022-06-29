@@ -1,4 +1,4 @@
-"""server URL Configuration
+"""backend URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.0/topics/http/urls/
@@ -15,8 +15,23 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework import routers
+from psycho_forms import views
+from django.views.generic.base import RedirectView
+
+
+router = routers.DefaultRouter()
+router.register(r'organisations', views.OrganizationViewSet)
+router.register(r'test-data', views.TestDataViewSet)
+router.register(r'questions', views.QuestionViewSet)
+router.register(r'answers', views.AnswerSelectableViewSet)
+router.register(r'questionaries', views.QuestionaryDataViewSet)
+router.register(r'test-results', views.TestResultViewSet)
 
 
 urlpatterns = [
+    path('', RedirectView.as_view(url='/api')),
+    path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
+    path('api-token-auth/', views.CustomAuthToken.as_view())
 ]
