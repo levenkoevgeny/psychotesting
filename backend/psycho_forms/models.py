@@ -66,7 +66,7 @@ class Question(models.Model):
 
 
 class AnswerSelectable(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, verbose_name="Вопрос")
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers', verbose_name="Вопрос")
     answer_text = models.CharField(verbose_name="Текст ответа", max_length=255)
     has_extra_data = models.BooleanField(verbose_name="Имеет дополнительную информацию", default=False)
     index_number = models.IntegerField(verbose_name="Порядковый номер ответа", blank=True, null=True)

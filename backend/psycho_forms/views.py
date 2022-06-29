@@ -29,6 +29,9 @@ class TestDataViewSet(viewsets.ModelViewSet):
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
+    filterset_fields = {
+        'test_id': ['exact'],
+    }
 
 
 class AnswerSelectableViewSet(viewsets.ModelViewSet):
