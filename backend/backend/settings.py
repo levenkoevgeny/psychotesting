@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'rest_framework',
+    'rest_framework.authtoken',
     'django_user_agents',
     'psycho_forms.apps.PsychoFormsConfig'
 ]
@@ -57,6 +58,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
     "http://127.0.0.1:8080",
+    "http://127.0.0.1:8000",
 ]
 
 ROOT_URLCONF = 'backend.urls'

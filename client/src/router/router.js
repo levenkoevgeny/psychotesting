@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory } from "vue-router"
 import TestList from "@/components/psychotesting/TestList"
 import TestQuestions from "@/components/psychotesting/TestQuestions"
+import LoginView from "@/components/auth/LoginView"
 
 const routes = [
   { path: "/tests", name: "tests", component: TestList },
   { path: "/tests/:id", name: "test_questions", component: TestQuestions },
   // { path: "/words", name: "words", component: WordsList },
-  // { path: "/login", name: "login", component: LoginView },
+  { path: "/login", name: "login", component: LoginView },
   // { path: "/registration", name: "registration", component: RegistrationView },
 ]
 
