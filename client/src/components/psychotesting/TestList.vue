@@ -28,6 +28,7 @@
 
 <script>
 import Spinner from "@/components/common/Spinner"
+import { mapGetters } from "vuex"
 export default {
   name: "TestList",
   components: { Spinner },
@@ -42,7 +43,7 @@ export default {
   },
   created() {
     fetch(
-      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-data/`
+      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-data/?organization_id=${this.userData.id}`
     )
       .then((response) => response.json())
       .then((tests) => {
@@ -50,6 +51,11 @@ export default {
       })
       .catch((e) => alert(e))
       .finally(() => (this.isLoading = false))
+  },
+  computed: {
+    ...mapGetters({
+      userData: "auth/getUser",
+    }),
   },
 }
 </script>

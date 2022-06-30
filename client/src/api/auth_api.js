@@ -21,4 +21,10 @@ export const api = {
       options
     )
   },
+  async getUserData(token, user_id) {
+    return fetch(
+      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/organisations/?user_id=${user_id}`,
+      authHeaders(token)
+    )
+  },
 }

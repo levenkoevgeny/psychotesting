@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router"
 import TestList from "@/components/psychotesting/TestList"
 import TestQuestions from "@/components/psychotesting/TestQuestions"
 import LoginView from "@/components/auth/LoginView"
-
+import store from "@/store"
 const routes = [
   { path: "/tests", name: "tests", component: TestList },
   { path: "/tests/:id", name: "test_questions", component: TestQuestions },
@@ -19,8 +19,10 @@ const router = createRouter({
 const isAuthenticated = true
 
 router.beforeEach(async (to, from) => {
-  console.log("before router")
-  if (!isAuthenticated && to.name !== "login") {
+  await store.dispatch("auth/actionCheckLoggedIn")
+  const isLoggedIn = store.getters["auth/getIsLoggedIn"]
+
+  if (!isLoggedIn && to.name !== "login") {
     return { name: "login" }
   }
 })

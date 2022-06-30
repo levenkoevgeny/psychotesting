@@ -18,7 +18,7 @@ QUESTION_TYPE_CHOICES = (
 
 class Organization(models.Model):
     user = models.ForeignKey(User, verbose_name="Пользователь", on_delete=models.CASCADE)
-    organization_name = models.CharField(verbose_name="Название организации", max_length=255)
+    organization_name = models.CharField(verbose_name="Название организации", max_length=255, default="Без названия")
     data_created = models.DateTimeField(verbose_name="Дата и время создания", auto_now_add=True)
 
     def __str__(self):
@@ -31,7 +31,7 @@ class Organization(models.Model):
 
 
 class TestData(models.Model):
-    organisation = models.ForeignKey(Organization, verbose_name="Организация(владелец теста)", on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, verbose_name="Организация(владелец теста)", on_delete=models.CASCADE)
     test_name = models.CharField(verbose_name="Название теста", max_length=255)
     extra_data = models.TextField(verbose_name="Дополнительная информация", blank=True, null=True)
     data_created = models.DateTimeField(verbose_name="Дата и время создания", auto_now_add=True)

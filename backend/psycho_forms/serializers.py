@@ -1,12 +1,13 @@
 from rest_framework import serializers
-from .models import Organization, TestData, Question, AnswerSelectable, QuestionaryData, TestResult
 from django.contrib.auth.models import User
+from .models import Organization, TestData, Question, AnswerSelectable, QuestionaryData, TestResult
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organization
         fields = '__all__'
+        depth = 2
 
 
 class TestDataSerializer(serializers.ModelSerializer):
@@ -40,3 +41,12 @@ class TestResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestResult
         fields = '__all__'
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'password']
+
+    def create(self, validated_data):
+        return User.objects.create_user(**validated_data)
