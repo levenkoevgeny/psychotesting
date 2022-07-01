@@ -3,13 +3,17 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
-from django.contrib.auth.hashers import make_password
 
-from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework import permissions
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+
+from jose import jwt
 
 from .models import Organization, TestData, Question, AnswerSelectable, QuestionaryData, TestResult
 from .models import SINGLE, MULTIPLE, TEXT, SELECT, DATE
@@ -30,8 +34,9 @@ class TestDataViewSet(viewsets.ModelViewSet):
     queryset = TestData.objects.all()
     serializer_class = TestDataSerializer
     filterset_fields = {
-            'organization_id': ['exact'],
-        }
+        'organization_id': ['exact'],
+    }
+
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
@@ -61,6 +66,25 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_me(request):
+    try:
+        token = request.META['HTTP_AUTHORIZATION'].split(" ")[1]
+        payload = jwt.decode(token, key=settings.SIMPLE_JWT['SIGNING_KEY'], algorithms=['HS256'])
+    except jwt.JWTError:
+        return Response(status=status.HTTP_403_FORBIDDEN)
+    try:
+        user_data = Organization.objects.get(user_id=payload['user_id'])
+        serializer = OrganizationSerializer(user_data)
+        print(serializer.data)
+        return Response(serializer.data)
+    except Organization.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    except Exception:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
 # signal
 @receiver(post_save, sender=User)
 def user_post_save_handler(sender, instance, created, **kwargs):
@@ -86,4 +110,3 @@ class CustomAuthToken(ObtainAuthToken):
             'token': token.key,
             'user_id': user.pk,
         })
-

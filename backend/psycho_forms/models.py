@@ -17,7 +17,7 @@ QUESTION_TYPE_CHOICES = (
 
 
 class Organization(models.Model):
-    user = models.ForeignKey(User, verbose_name="Пользователь", on_delete=models.CASCADE)
+    user = models.OneToOneField(User, verbose_name="Пользователь", on_delete=models.CASCADE)
     organization_name = models.CharField(verbose_name="Название организации", max_length=255, default="Без названия")
     data_created = models.DateTimeField(verbose_name="Дата и время создания", auto_now_add=True)
 

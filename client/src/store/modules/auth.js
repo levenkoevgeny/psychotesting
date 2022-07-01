@@ -3,10 +3,11 @@ import {
   getLocalToken,
   saveLocalToken,
   removeLocalToken,
-  getLocalUserId,
-  saveLocalUserId,
-  removeLocalUserId,
+  saveLocalRefreshToken,
+  getLocalRefreshToken,
+  removeLocalRefreshToken,
 } from "@/utils"
+import router from "@/router/router"
 
 const state = () => ({
   token: null,
@@ -36,10 +37,9 @@ const actions = {
   async actionLogIn({ commit }, payload) {
     let { username, password } = payload
     const response = await api.logInGetToken(username, password)
-    const data = await response.json()
-    console.log("data", data)
-    saveLocalToken(data.token)
-    saveLocalUserId(data.user_id)
+    const data = await response.data
+    saveLocalToken(data.access)
+    saveLocalRefreshToken(data.refresh)
   },
 
   async actionCheckLoggedIn({ state, commit, dispatch }) {
@@ -54,13 +54,11 @@ const actions = {
       }
       if (token) {
         try {
-          const response = await api.getUserData(token, getLocalUserId())
-
+          const response = await api.getUserData(token)
           if (response.status >= 200 && response.status < 300) {
-            console.log(response.status)
-            const userData = await response.json()
+            const userData = await response.data
             commit("setLoggedIn", true)
-            commit("setUserData", { ...userData[0] })
+            commit("setUserData", { ...userData })
           } else {
             throw new Error("User data error")
           }
@@ -75,7 +73,6 @@ const actions = {
 
   async actionRemoveLogIn({ state, commit }) {
     removeLocalToken()
-    removeLocalUserId()
     commit("setToken", "")
     commit("setLoggedIn", false)
   },

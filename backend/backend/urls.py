@@ -18,7 +18,10 @@ from django.urls import path, include
 from rest_framework import routers
 from psycho_forms import views
 from django.views.generic.base import RedirectView
-
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 router = routers.DefaultRouter()
 router.register(r'organisations', views.OrganizationViewSet)
@@ -32,7 +35,10 @@ router.register(r'users', views.UserViewSet)
 
 urlpatterns = [
     path('', RedirectView.as_view(url='/api')),
+    path('api/users/me/', views.get_me),
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
-    path('api-token-auth/', views.CustomAuthToken.as_view())
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # path('api-token-auth/', views.CustomAuthToken.as_view())
 ]
