@@ -25,4 +25,7 @@ export default {
 .component-white-background {
   background-color: white;
 }
+title {
+  background-color: black;
+}
 </style>

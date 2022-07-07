@@ -11,6 +11,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 class TestDataSerializer(serializers.ModelSerializer):
+    get_questions_count = serializers.ReadOnlyField()
     class Meta:
         model = TestData
         fields = '__all__'
@@ -27,7 +28,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['test', 'question_text', 'question_type', 'index_number', 'data_created', 'is_active',
+        fields = ['id','test', 'question_text', 'question_type', 'index_number', 'data_created', 'is_active',
                   'has_required_answer', 'is_common_for_all_tests', 'answers']
 
 

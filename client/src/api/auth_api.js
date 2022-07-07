@@ -1,6 +1,8 @@
 import axios from "axios"
+import store from "@/store"
+import router from "@/router/router"
 
-function authHeaders(token) {
+export function authHeaders(token) {
   return {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -8,18 +10,28 @@ function authHeaders(token) {
   }
 }
 
-
-axios.interceptors.response.use(function(response){
-  console.log('inter success')
-  return response
-}, function(error){
-  console.log('inter error')
-  console.log(error.response.status)
-  return Promise.reject(error);
-})
-
-
-
+axios.interceptors.response.use(
+  function (response) {
+    console.log("interceptor Ok")
+    return response
+  },
+  function (error) {
+    if (error.response.status === 0) {
+      router.push({ name: "error" })
+    }
+    if (error.response.status === 401) {
+      store.dispatch("auth/actionRemoveLogIn")
+      router.push({ name: "login" })
+    }
+    if (error.response.status === 404) {
+      router.push({ name: "NotFound" })
+    }
+    if (error.response.status === 500) {
+      router.push({ name: "error" })
+    }
+    return Promise.reject(error)
+  }
+)
 
 export const api = {
   async logInGetToken(username, password) {
@@ -33,6 +45,9 @@ export const api = {
     )
   },
   async getUserData(token) {
-    return axios.get(`${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/users/me/`, authHeaders(token))
+    return axios.get(
+      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/users/me/`,
+      authHeaders(token)
+    )
   },
 }

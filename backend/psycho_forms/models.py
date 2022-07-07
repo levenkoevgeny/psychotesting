@@ -37,6 +37,10 @@ class TestData(models.Model):
     data_created = models.DateTimeField(verbose_name="Дата и время создания", auto_now_add=True)
     is_active = models.BooleanField(verbose_name="Является активным", default=True)
 
+    @property
+    def get_questions_count(self):
+        return self.question_set.all().count()
+
     def __str__(self):
         return self.test_name
 

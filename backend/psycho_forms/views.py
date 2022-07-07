@@ -36,6 +36,7 @@ class TestDataViewSet(viewsets.ModelViewSet):
     filterset_fields = {
         'organization_id': ['exact'],
     }
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
@@ -44,26 +45,31 @@ class QuestionViewSet(viewsets.ModelViewSet):
     filterset_fields = {
         'test_id': ['exact'],
     }
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class AnswerSelectableViewSet(viewsets.ModelViewSet):
     queryset = AnswerSelectable.objects.all()
     serializer_class = AnswerSelectableSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class QuestionaryDataViewSet(viewsets.ModelViewSet):
     queryset = QuestionaryData.objects.all()
     serializer_class = QuestionaryDataSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class TestResultViewSet(viewsets.ModelViewSet):
     queryset = TestResult.objects.all()
     serializer_class = TestResultSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 @api_view(['GET'])
@@ -77,7 +83,6 @@ def get_me(request):
     try:
         user_data = Organization.objects.get(user_id=payload['user_id'])
         serializer = OrganizationSerializer(user_data)
-        print(serializer.data)
         return Response(serializer.data)
     except Organization.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)

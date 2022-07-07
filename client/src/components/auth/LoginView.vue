@@ -14,7 +14,7 @@
             placeholder="name@example.com"
             v-model="auth_data.username"
           />
-          <label for="floatingInput">Логин</label>
+          <label>Логин</label>
         </div>
         <div class="form-floating">
           <input
@@ -23,11 +23,12 @@
             placeholder="Password"
             v-model="auth_data.password"
           />
-          <label for="floatingPassword">Пароль</label>
+          <label>Пароль</label>
         </div>
-
         <button class="w-100 btn btn-lg btn-primary" type="submit">Вход</button>
-        <a href="/registration">Нет аккаунта?</a>
+        <br />
+        <br />
+        <a class="" href="/registration">Нет аккаунта?</a>
         <p class="mt-5 mb-3 text-muted">&copy; Разработано ООИТ Академии МВД</p>
       </form>
     </main>
@@ -49,6 +50,7 @@ export default {
     submitHandler(e) {
       e.preventDefault()
       e.stopPropagation()
+      // this.$store.commit("auth/setIsLogInError", false)
       this.$store
         .dispatch("auth/actionLogIn", { ...this.auth_data })
         .then(() => {
@@ -98,7 +100,7 @@ body-signin {
   z-index: 2;
 }
 
-.form-signin input[type="email"] {
+.form-signin input[type="text"] {
   margin-bottom: -1px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;

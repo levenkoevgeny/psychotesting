@@ -12,7 +12,7 @@ import router from "@/router/router"
 const state = () => ({
   token: null,
   isLoggedIn: null,
-  logInError: false,
+  isLogInError: null,
   user: null,
 })
 
@@ -24,8 +24,8 @@ const getters = {
   getIsLoggedIn(state) {
     return state.isLoggedIn
   },
-  getLogInError(state) {
-    return state.logInError
+  getIsLogInError(state) {
+    return state.isLogInError
   },
   getUser(state) {
     return state.user
@@ -35,11 +35,23 @@ const getters = {
 // actions
 const actions = {
   async actionLogIn({ commit }, payload) {
-    let { username, password } = payload
-    const response = await api.logInGetToken(username, password)
-    const data = await response.data
-    saveLocalToken(data.access)
-    saveLocalRefreshToken(data.refresh)
+    try {
+      let { username, password } = payload
+      const response = await api.logInGetToken(username, password)
+      const data = await response.data
+      const token = data.access
+      const refresh = data.refresh
+      if (token) {
+        saveLocalToken(token)
+        saveLocalRefreshToken(refresh)
+        commit("setToken", token)
+        commit("setLoggedIn", true)
+        commit("setIsLogInError", false)
+      } else {
+      }
+    } catch (error) {
+      commit("setIsLogInError", true)
+    }
   },
 
   async actionCheckLoggedIn({ state, commit, dispatch }) {
@@ -55,13 +67,9 @@ const actions = {
       if (token) {
         try {
           const response = await api.getUserData(token)
-          if (response.status >= 200 && response.status < 300) {
-            const userData = await response.data
-            commit("setLoggedIn", true)
-            commit("setUserData", { ...userData })
-          } else {
-            throw new Error("User data error")
-          }
+          const userData = await response.data
+          commit("setUserData", { ...userData })
+          commit("setLoggedIn", true)
         } catch (error) {
           dispatch("actionRemoveLogIn")
         }
@@ -88,6 +96,9 @@ const mutations = {
   },
   setUserData(state, payload) {
     state.user = payload
+  },
+  setIsLogInError(state, payload) {
+    state.isLogInError = payload
   },
 }
 

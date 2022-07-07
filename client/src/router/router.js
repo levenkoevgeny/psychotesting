@@ -4,10 +4,17 @@ import TestQuestions from "@/components/psychotesting/TestQuestions"
 import LoginView from "@/components/auth/LoginView"
 import OrganisationData from "@/components/psychotesting/OrganisationData"
 import RegistrationView from "@/components/auth/RegistrationView"
+import NotFound from "@/components/common/NotFound"
+import InternalServerError from "@/components/common/InternalServerError"
 
 import store from "@/store"
 
 const routes = [
+  {
+    path: "/",
+    name: "main",
+    redirect: "/tests",
+  },
   {
     path: "/tests",
     name: "tests",
@@ -20,7 +27,6 @@ const routes = [
     component: TestQuestions,
     meta: { requiresAuth: true },
   },
-  // { path: "/words", name: "words", component: WordsList },
   {
     path: "/login",
     name: "login",
@@ -39,7 +45,8 @@ const routes = [
     component: OrganisationData,
     meta: { requiresAuth: true },
   },
-  // { path: "/registration", name: "registration", component: RegistrationView },
+  { path: "/:pathMatch(.*)*", name: "NotFound", component: NotFound },
+  { path: "/error", name: "error", component: InternalServerError },
 ]
 
 const router = createRouter({
@@ -54,11 +61,8 @@ router.beforeEach(async (to, from) => {
   const isLoggedIn = store.getters["auth/getIsLoggedIn"]
 
   if (to.meta.requiresAuth && !isLoggedIn) {
-    // this route requires auth, check if logged in
-    // if not, redirect to login page.
     return {
       path: "/login",
-      // save the location we were at to come back later
       query: { redirect: to.fullPath },
     }
   }
