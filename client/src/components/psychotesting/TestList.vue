@@ -12,7 +12,7 @@
     <div v-else class="mt-3">
       <div v-if="testList.length > 0">
         <div v-for="(test, index) in testList" :key="test.id">
-          <TestItem :test-data="test" @deleteTest="deleteTestHandler" />
+          <TestItem :testData="test" @deleteTest="deleteTestHandler" />
         </div>
       </div>
     </div>
@@ -67,10 +67,10 @@ export default {
     }),
   },
   methods: {
-    deleteTestHandler(testId) {
+    async deleteTestHandler(testId) {
       try {
         this.isLoading = true
-        testDataAPI.deleteTestData(this.userToken, testId)
+        await testDataAPI.deleteTestData(this.userToken, testId)
       } catch (e) {
       } finally {
         this.testList = this.testList.filter((test) => test.id !== testId)

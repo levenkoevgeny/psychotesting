@@ -10,6 +10,7 @@
     <div class="dropdown">
       <div v-if="isLogged">
         <button
+          v-if="this.user"
           class="btn btn-secondary dropdown-toggle"
           type="button"
           id="dropdownMenuButton1"

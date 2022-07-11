@@ -98,6 +98,13 @@ def user_post_save_handler(sender, instance, created, **kwargs):
             Organization.objects.create(user=instance, organization_name="Без названия")
 
 
+# @receiver(post_save, sender=Question)
+# def question_post_save_handler(sender, instance, created, **kwargs):
+#     if isinstance(instance, Question):
+#         if created:
+#             AnswerSelectable.objects.create(question=instance, answer_text="Новый ответ", index_number=1)
+
+
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:

@@ -10,7 +10,7 @@ export const questionsAPI = {
   },
 
   async addNewQuestion(token, questionData) {
-    return axios.get(
+    return axios.post(
       `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/questions/`,
       questionData,
       authHeaders(token)
@@ -18,13 +18,13 @@ export const questionsAPI = {
   },
   async deleteQuestion(token, questionId) {
     return axios.delete(
-      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/questions/${questionId}`,
+      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/questions/${questionId}/`,
       authHeaders(token)
     )
   },
   async updateQuestion(token, questionData) {
     return axios.put(
-      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/questions/${questionData.id}`,
+      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/questions/${questionData.id}/`,
       questionData,
       authHeaders(token)
     )

@@ -47,6 +47,9 @@ const actions = {
         commit("setToken", token)
         commit("setLoggedIn", true)
         commit("setIsLogInError", false)
+        const response = await api.getUserData(token)
+        const userData = await response.data
+        commit("setUserData", { ...userData })
       } else {
       }
     } catch (error) {

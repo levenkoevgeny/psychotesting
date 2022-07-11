@@ -50,7 +50,6 @@ export default {
     submitHandler(e) {
       e.preventDefault()
       e.stopPropagation()
-      // this.$store.commit("auth/setIsLogInError", false)
       this.$store
         .dispatch("auth/actionLogIn", { ...this.auth_data })
         .then(() => {

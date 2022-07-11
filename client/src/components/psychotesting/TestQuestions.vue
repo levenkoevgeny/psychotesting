@@ -17,7 +17,7 @@
         <button
           type="button"
           class="btn btn-light rounded-circle fs-6"
-          @click=""
+          @click="() => this.addNewQuestion(0)"
         >
           <font-awesome-icon icon="fa-solid fa-circle-plus" />
         </button>
@@ -41,8 +41,11 @@
     <div v-if="isQuestionListLoading"><Spinner /></div>
     <div v-else>
       <div v-if="questionList.length > 0">
-        <div v-for="(question, index) in questionList" :key="question.id">
-          <QuestionItem :question="question" />
+        <div v-for="(question, index) in sortedQuestions" :key="question.id">
+          <QuestionItem
+            :question="question"
+            @deleteQuestion="this.deleteQuestionHandler"
+          />
         </div>
       </div>
     </div>
@@ -72,6 +75,11 @@ export default {
     ...mapGetters({
       userToken: "auth/getToken",
     }),
+    sortedQuestions: function () {
+      return this.questionList.sort(function (a, b) {
+        return a - b
+      })
+    },
   },
   async created() {
     try {
@@ -103,6 +111,32 @@ export default {
         this.testData
       )
       this.isSaving = false
+    },
+    async addNewQuestion(after) {
+      this.isSaving = true
+      const response = await questionsAPI.addNewQuestion(this.userToken, {
+        test: this.testData.id,
+        question_text: "Новый вопрос",
+        question_type: 1,
+        index_number: 1,
+        is_active: true,
+        has_required_answer: false,
+        is_common_for_all_tests: false,
+      })
+      this.questionList.push(response.data)
+      this.isSaving = false
+    },
+    async deleteQuestionHandler(questionId) {
+      this.isSaving = true
+      try {
+        await questionsAPI.deleteQuestion(this.userToken, questionId)
+      } catch (e) {
+      } finally {
+        this.questionList = this.questionList.filter(
+          (question) => question.id !== questionId
+        )
+        this.isSaving = false
+      }
     },
   },
   watch: {
