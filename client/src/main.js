@@ -8,12 +8,13 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faClone } from "@fortawesome/free-regular-svg-icons"
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons"
 import { faCircleCheck } from "@fortawesome/free-regular-svg-icons"
-import { faPlusCircle } from "@fortawesome/free-solid-svg-icons"
+import { faEye } from "@fortawesome/free-regular-svg-icons"
 
 library.add(faClone)
 library.add(faTrashCan)
 library.add(faCircleCheck)
 library.add(faCircleCheck)
+library.add(faEye)
 
 createApp(App)
   .use(router)

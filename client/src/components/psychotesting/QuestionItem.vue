@@ -31,10 +31,13 @@
         </div>
       </div>
     </div>
-    <div v-for="(answer, index) in question.answers" :key="answer.id">
+    <div v-for="answer in sortedAnswers" :key="answer.id">
       <AnswerItem
         :answer="answer"
         :questionType="parseInt(question.question_type)"
+        :moreThanOneAnswer="this.answersCount"
+        :questionTypes="questionTypes"
+        @deleteAnswer="this.deleteAnswer"
       />
     </div>
 
@@ -42,11 +45,19 @@
 
     <div
       class="d-flex align-items-center flex-row my-3"
-      v-if="parseInt(question.question_type) === 1"
+      v-if="parseInt(question.question_type) === this.questionTypes['RADIO']"
     >
       <div class="d-flex align-items-center">
         <input class="form-check-input" type="radio" />
-        <input type="text" class="form-control ms-2" value="Добавить вариант" />
+        <button
+          type="button"
+          class="btn btn-link"
+          style="text-decoration: none"
+          @click="this.addAnswer"
+        >
+          Добавить вариант
+        </button>
+        <!--        <input type="text" class="form-control ms-2" value="Добавить вариант" />-->
       </div>
       <div class="d-flex align-items-center flex-row">
         <span class="ms-2">или</span>
@@ -61,7 +72,7 @@
     </div>
     <div
       class="d-flex align-items-center flex-row my-3"
-      v-if="parseInt(question.question_type) === 2"
+      v-if="parseInt(question.question_type) === this.questionTypes['CHECKBOX']"
     >
       <div class="d-flex align-items-center">
         <input class="form-check-input" type="checkbox" />
@@ -78,14 +89,6 @@
         </button>
       </div>
     </div>
-    <div
-      class="d-flex align-items-center flex-row my-3"
-      v-if="parseInt(question.question_type) === 4"
-    >
-      <div class="d-flex align-items-center">
-        <input type="text" class="form-control ms-2" value="Добавить вариант" />
-      </div>
-    </div>
 
     <hr class="dropdown-divider my-3" />
     <div class="row">
@@ -96,6 +99,7 @@
           type="button"
           class="btn btn-light rounded-circle link-secondary mx-2 fs-5"
           title="Создать копию"
+          @click="$emit('copyQuestion', question.id, question.index_number)"
         >
           <font-awesome-icon icon="fa-regular fa-clone" />
         </button>
@@ -103,7 +107,7 @@
           type="button"
           class="btn btn-light rounded-circle link-secondary mx-2 fs-5"
           title="Удалить"
-          @click="$emit('deleteQuestion', question.id)"
+          @click="$emit('deleteQuestion', question.id, question.index_number)"
         >
           <font-awesome-icon icon="fa-regular fa-trash-can" />
         </button>
@@ -118,6 +122,9 @@
           />
           <label class="form-check-label">Обязательный вопрос</label>
         </div>
+        <button @click="$emit('addNextQuestion', question.index_number)">
+          +
+        </button>
       </div>
     </div>
   </div>
@@ -127,21 +134,94 @@
 import { mapGetters } from "vuex"
 import AnswerItem from "@/components/psychotesting/AnswerItem"
 import { questionsAPI } from "@/api/questionsAPI"
+import { answerAPI } from "@/api/answerAPI"
+import questionTypes from "@/components/psychotesting/questionTypes"
+
 export default {
   name: "QuestionItem",
   components: { AnswerItem },
   props: {
     question: Object,
   },
+  data() {
+    return {
+      questionTypes: questionTypes,
+    }
+  },
   methods: {
+    arrangeIndexAdd(after) {
+      this.question.answers.map((answer) => {
+        if (parseInt(answer.index_number) > parseInt(after)) {
+          answer.index_number = answer.index_number + 1
+        }
+      })
+    },
+    arrangeIndexDelete(after) {
+      this.question.answers.map((answer) => {
+        if (parseInt(answer.index_number) > parseInt(after)) {
+          answer.index_number = answer.index_number - 1
+        }
+      })
+    },
     async updateQuestionData() {
+      if (
+        [
+          this.questionTypes["TEXT"],
+          this.questionTypes["SELECT"],
+          this.questionTypes["DATE"],
+        ].includes(parseInt(this.question.question_type))
+      ) {
+        console.log("incl")
+        // const response = await questionsAPI.deleteQuestionAnswers(
+        //   this.userToken,
+        //   this.question.id
+        // )
+        // this.question = response.data
+      }
       await questionsAPI.updateQuestion(this.userToken, this.question)
+    },
+    async deleteAnswer(answerId, after) {
+      try {
+        await answerAPI.deleteAnswer(this.userToken, answerId)
+        this.question.answers = this.question.answers.filter(
+          (answer) => answer.id !== answerId
+        )
+        this.isSaving = false
+        this.arrangeIndexDelete(after)
+      } catch (e) {
+      } finally {
+      }
+    },
+    async addAnswer() {
+      try {
+        const response = await answerAPI.addNewAnswer(this.userToken, {
+          question: this.question.id,
+          answer_text: "Новый ответ",
+        })
+        this.question.answers.push(response.data)
+      } catch (error) {
+      } finally {
+      }
     },
   },
   computed: {
     ...mapGetters({
       userToken: "auth/getToken",
     }),
+    sortedAnswers: function () {
+      return this.question.answers.sort(function (a, b) {
+        if (a.index_number < b.index_number) {
+          return -1
+        }
+        if (a.index_number > b.index_number) {
+          return 1
+        }
+        return 0
+      })
+    },
+    answersCount: function () {
+      return this.question.answers.length > 1
+    },
   },
 
   watch: {

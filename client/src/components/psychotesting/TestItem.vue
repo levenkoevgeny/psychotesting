@@ -20,7 +20,16 @@
         <button
           type="button"
           class="btn btn-light rounded-circle link-secondary mx-2 fs-5"
+          title="Просмотр"
+          @click="this.changeRoute(testData.id)"
+        >
+          <font-awesome-icon icon="fa-solid fa-eye" />
+        </button>
+        <button
+          type="button"
+          class="btn btn-light rounded-circle link-secondary mx-2 fs-5"
           title="Создать копию"
+          @click="$emit('makeTestCopy', testData.id)"
         >
           <font-awesome-icon icon="fa-regular fa-clone" />
         </button>
@@ -64,6 +73,13 @@ export default {
     },
     async updateTestData() {
       await testDataAPI.updateTestData(this.userToken, this.testData)
+    },
+    changeRoute(testId) {
+      let route = this.$router.resolve({
+        name: "test_running",
+        params: { id: testId },
+      })
+      window.open(route.href, "_blank")
     },
   },
   computed: {

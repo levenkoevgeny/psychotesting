@@ -16,10 +16,24 @@ export const testDataAPI = {
     )
   },
 
+  async getTestDataForRunning(testId) {
+    return axios.get(
+      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-data/${testId}/`
+    )
+  },
+
   async addNewTest(token, testData) {
     return axios.post(
       `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-data/`,
       testData,
+      authHeaders(token)
+    )
+  },
+
+  async makeTestCopy(token, testId) {
+    return axios.post(
+      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-data/${testId}/make_copy/`,
+      null,
       authHeaders(token)
     )
   },

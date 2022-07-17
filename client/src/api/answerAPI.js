@@ -9,6 +9,14 @@ export const answerAPI = {
     )
   },
 
+  async addNewAnswer(token, answerData) {
+    return axios.post(
+      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/answers/`,
+      answerData,
+      authHeaders(token)
+    )
+  },
+
   async updateAnswerData(token, answerData) {
     return axios.put(
       `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/answers/${answerData.id}/`,

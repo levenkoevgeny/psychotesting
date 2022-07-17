@@ -12,7 +12,7 @@
     >
       <div
         class="d-flex flex-column border component-white-background rounded-3"
-        style="position: absolute; right: -60px; top: 0px"
+        style="position: absolute; right: -60px; top: 0px;"
       >
         <button
           type="button"
@@ -41,10 +41,12 @@
     <div v-if="isQuestionListLoading"><Spinner /></div>
     <div v-else>
       <div v-if="questionList.length > 0">
-        <div v-for="(question, index) in sortedQuestions" :key="question.id">
+        <div v-for="question in sortedQuestions" :key="question.id">
           <QuestionItem
             :question="question"
             @deleteQuestion="this.deleteQuestionHandler"
+            @addNextQuestion="this.addNewQuestion"
+            @copyQuestion="this.makeQuestionCopy"
           />
         </div>
       </div>
@@ -77,7 +79,13 @@ export default {
     }),
     sortedQuestions: function () {
       return this.questionList.sort(function (a, b) {
-        return a - b
+        if (a.index_number < b.index_number) {
+          return -1
+        }
+        if (a.index_number > b.index_number) {
+          return 1
+        }
+        return 0
       })
     },
   },
@@ -94,8 +102,7 @@ export default {
           this.userToken,
           this.$route.params.id
         )
-        const questions = await response.data
-        this.questionList = questions
+        this.questionList = await response.data
         this.isQuestionListLoading = false
       }
     } catch (e) {
@@ -104,29 +111,62 @@ export default {
     }
   },
   methods: {
+    arrangeIndexAdd(after) {
+      this.questionList.map((question) => {
+        if (parseInt(question.index_number) > parseInt(after)) {
+          question.index_number = question.index_number + 1
+        }
+      })
+    },
+    arrangeIndexDelete(after) {
+      this.questionList.map((question) => {
+        if (parseInt(question.index_number) > parseInt(after)) {
+          question.index_number = question.index_number - 1
+        }
+      })
+    },
     async updateTestData() {
       this.isSaving = true
-      const response = await testDataAPI.updateTestData(
+      await testDataAPI.updateTestData(
         this.userToken,
         this.testData
       )
       this.isSaving = false
     },
-    async addNewQuestion(after) {
+    async addNewQuestion(afterNumber) {
       this.isSaving = true
-      const response = await questionsAPI.addNewQuestion(this.userToken, {
-        test: this.testData.id,
-        question_text: "Новый вопрос",
-        question_type: 1,
-        index_number: 1,
-        is_active: true,
-        has_required_answer: false,
-        is_common_for_all_tests: false,
-      })
+      const response = await questionsAPI.addNewQuestion(
+        this.userToken,
+        {
+          test: this.testData.id,
+          question_text: "Новый вопрос",
+          question_type: 1,
+          index_number: 1,
+          is_active: true,
+          has_required_answer: false,
+          is_common_for_all_tests: false,
+        },
+        afterNumber
+      )
+      this.arrangeIndexAdd(afterNumber)
       this.questionList.push(response.data)
       this.isSaving = false
     },
-    async deleteQuestionHandler(questionId) {
+    async makeQuestionCopy(questionId, afterNumber) {
+      this.isSaving = true
+      try {
+        const response = await questionsAPI.makeQuestionCopy(
+          this.userToken,
+          questionId
+        )
+        this.arrangeIndexAdd(afterNumber)
+        this.questionList.push(response.data)
+      } catch (error) {
+      } finally {
+        this.isSaving = false
+      }
+    },
+    async deleteQuestionHandler(questionId, after) {
       this.isSaving = true
       try {
         await questionsAPI.deleteQuestion(this.userToken, questionId)
@@ -135,6 +175,7 @@ export default {
         this.questionList = this.questionList.filter(
           (question) => question.id !== questionId
         )
+        this.arrangeIndexDelete(after)
         this.isSaving = false
       }
     },

@@ -6,6 +6,8 @@ import OrganisationData from "@/components/psychotesting/OrganisationData"
 import RegistrationView from "@/components/auth/RegistrationView"
 import NotFound from "@/components/common/NotFound"
 import InternalServerError from "@/components/common/InternalServerError"
+import TestRunning from "@/components/psychotesting/running/TestRunning"
+import TestListRunning from "@/components/psychotesting/running/TestListRunning"
 
 import store from "@/store"
 
@@ -26,6 +28,18 @@ const routes = [
     name: "test_questions",
     component: TestQuestions,
     meta: { requiresAuth: true },
+  },
+  {
+    path: "/tests-running",
+    name: "tests-running",
+    component: TestListRunning,
+    meta: { requiresAuth: false },
+  },
+  {
+    path: "/tests/running/:id",
+    name: "test_running",
+    component: TestRunning,
+    meta: { requiresAuth: false },
   },
   {
     path: "/login",
@@ -53,8 +67,6 @@ const router = createRouter({
   routes,
   history: createWebHistory(process.env.BASE_URL),
 })
-
-const isAuthenticated = true
 
 router.beforeEach(async (to, from) => {
   await store.dispatch("auth/actionCheckLoggedIn")

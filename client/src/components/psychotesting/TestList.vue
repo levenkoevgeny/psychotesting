@@ -11,8 +11,12 @@
     </div>
     <div v-else class="mt-3">
       <div v-if="testList.length > 0">
-        <div v-for="(test, index) in testList" :key="test.id">
-          <TestItem :testData="test" @deleteTest="deleteTestHandler" />
+        <div v-for="(test) in testList" :key="test.id">
+          <TestItem
+            :testData="test"
+            @deleteTest="deleteTestHandler"
+            @makeTestCopy="makeTestCopy"
+          />
         </div>
       </div>
     </div>
@@ -33,7 +37,7 @@ import Spinner from "@/components/common/Spinner"
 import TestItem from "@/components/psychotesting/TestItem"
 import { mapGetters } from "vuex"
 import { testDataAPI } from "@/api/testDataApi"
-import router from "@/router/router"
+
 export default {
   name: "TestList",
   components: { Spinner, TestItem },
@@ -52,8 +56,7 @@ export default {
         this.userToken,
         this.userData.id
       )
-      const data = await response.data
-      this.testList = data
+      this.testList = await response.data
     } catch (e) {
       console.log(e.message)
     } finally {
@@ -87,7 +90,20 @@ export default {
       })
       const newTest = await response.data
       this.isLoading = false
-      router.push({ name: "test_questions", params: { id: newTest.id } })
+      await this.$router.push({
+        name: "test_questions",
+        params: { id: newTest.id },
+      })
+    },
+    async makeTestCopy(testId) {
+      try {
+        this.isLoading = true
+        const response = await testDataAPI.makeTestCopy(this.userToken, testId)
+        this.testList.push(response.data)
+      } catch (error) {
+      } finally {
+        this.isLoading = false
+      }
     },
   },
 }
