@@ -50,7 +50,6 @@ const actions = {
         const response = await api.getUserData(token)
         const userData = await response.data
         commit("setUserData", { ...userData })
-      } else {
       }
     } catch (error) {
       commit("setIsLogInError", true)
@@ -86,6 +85,11 @@ const actions = {
     removeLocalToken()
     commit("setToken", "")
     commit("setLoggedIn", false)
+  },
+
+  async updateUserData({ state, commit }, payload) {
+    // добавить код
+    commit("setUserData", { ...payload })
   },
 }
 

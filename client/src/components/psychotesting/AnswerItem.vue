@@ -69,9 +69,9 @@ import { answerAPI } from "@/api/answerAPI"
 export default {
   name: "AnswerItem",
   props: {
-    answer: Object,
-    questionType: Number,
-    moreThanOneAnswer: Boolean,
+    answer: { type: Object, required: true },
+    questionType: { type: Number, required: true },
+    moreThanOneAnswer: { type: Boolean, required: true },
   },
   data() {
     return {

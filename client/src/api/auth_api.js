@@ -12,7 +12,6 @@ export function authHeaders(token) {
 
 axios.interceptors.response.use(
   function (response) {
-    console.log("interceptor Ok")
     return response
   },
   function (error) {
@@ -50,4 +49,5 @@ export const api = {
       authHeaders(token)
     )
   },
+  async updateUserData(token, userData) {},
 }

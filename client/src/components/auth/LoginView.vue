@@ -1,12 +1,14 @@
 <template>
+  <div v-if="isLogInError" class="alert alert-danger m-0 p-3" role="alert">
+    Ошибка авторизации!
+  </div>
   <div
-    class="d-flex justify-content-center align-items-center container-fluid"
+    class="d-flex justify-content-center align-items-center container-fluid border"
     style="background-color: #f5f5f5; height: 100vh"
   >
     <main class="form-signin">
       <form @submit="submitHandler">
         <h1 class="h3 mb-3 fw-normal">Авторизуйтесь</h1>
-
         <div class="form-floating">
           <input
             type="text"
@@ -36,6 +38,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex"
+
 export default {
   name: "LoginView",
   data() {
@@ -45,6 +49,11 @@ export default {
         password: "",
       },
     }
+  },
+  computed: {
+    ...mapGetters({
+      isLogInError: "auth/getIsLogInError",
+    }),
   },
   methods: {
     submitHandler(e) {

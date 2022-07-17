@@ -12,7 +12,12 @@
 
     <div class="my-3">
       <label class="form-label">Название организации</label>
-      <input type="email" class="form-control" />
+      <input
+        type="text"
+        class="form-control"
+        :value="userData.organization_name"
+        @input="updateOrganizationName"
+      />
     </div>
   </div>
 </template>
@@ -32,6 +37,14 @@ export default {
       userToken: "auth/getToken",
       userData: "auth/getUser",
     }),
+  },
+  methods: {
+    updateOrganizationName(e) {
+      this.$store.dispatch("auth/updateUserData", {
+        ...this.userData,
+        organization_name: e.target.value,
+      })
+    },
   },
 }
 </script>

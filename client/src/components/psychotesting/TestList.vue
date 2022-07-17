@@ -1,4 +1,7 @@
 <template>
+  <div v-if="isError" class="alert alert-danger m-0 p-3" role="alert">
+    Ошибка загрузки данных!
+  </div>
   <div class="container">
     <div
       class="my-3 p-3 rounded-3 component-white-background test-data-top-border d-flex flex-row justify-content-between"
@@ -6,12 +9,16 @@
       <h1>Мои тесты</h1>
     </div>
 
-    <div v-if="isLoading" class="mt-3">
+    <div
+      v-if="isLoading"
+      class="d-flex justify-content-center align-items-center"
+      style="height: 70vh"
+    >
       <Spinner />
     </div>
     <div v-else class="mt-3">
       <div v-if="testList.length > 0">
-        <div v-for="(test) in testList" :key="test.id">
+        <div v-for="test in testList" :key="test.id">
           <TestItem
             :testData="test"
             @deleteTest="deleteTestHandler"
@@ -48,6 +55,7 @@ export default {
       },
       testList: [],
       isLoading: true,
+      isError: false,
     }
   },
   async created() {
@@ -58,7 +66,7 @@ export default {
       )
       this.testList = await response.data
     } catch (e) {
-      console.log(e.message)
+      this.isError = true
     } finally {
       this.isLoading = false
     }
@@ -74,9 +82,10 @@ export default {
       try {
         this.isLoading = true
         await testDataAPI.deleteTestData(this.userToken, testId)
-      } catch (e) {
-      } finally {
         this.testList = this.testList.filter((test) => test.id !== testId)
+      } catch (e) {
+        this.isError = true
+      } finally {
         this.isLoading = false
       }
     },

@@ -64,7 +64,7 @@ import { mapGetters } from "vuex"
 export default {
   name: "TestItem",
   props: {
-    testData: Object,
+    testData: { type: Object, required: true },
   },
   methods: {
     addedTimeToLocalString(testDateTime) {

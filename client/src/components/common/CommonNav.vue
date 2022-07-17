@@ -1,34 +1,71 @@
 <template>
-  <nav class="nav justify-content-center" style="background-color: white">
-    <button
-      class="btn btn-link"
-      aria-current="page"
-      @click="$router.push({ name: 'tests' })"
-    >
-      Мои тесты
-    </button>
-    <div class="dropdown">
-      <div v-if="isLogged">
-        <button
-          v-if="this.user"
-          class="btn btn-secondary dropdown-toggle"
-          type="button"
-          id="dropdownMenuButton1"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          {{ this.user.organization_name }}
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-          <li>
-            <a class="dropdown-item" @click="this.logOut">Выйти из системы</a>
-          </li>
-          <li>
-            <a
-              class="dropdown-item"
-              @click="$router.push({ name: 'personal-data' })"
-              >Настройки</a
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" v-if="isLogged">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">
+        <img
+          src=""
+          alt=""
+          width="30"
+          height="24"
+          class="d-inline-block align-text-top"
+        />
+        {{ this.user.organization_name }}
+      </a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNavDropdown"
+        aria-controls="navbarNavDropdown"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <router-link
+              :to="{ name: 'main' }"
+              class="nav-link active"
+              aria-current="page"
+              >На главную</router-link
             >
+          </li>
+          <li class="nav-item">
+            <router-link
+              :to="{ name: 'tests' }"
+              class="nav-link"
+              aria-current="page"
+              >Мои тесты</router-link
+            >
+          </li>
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdownMenuLink"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Учетная запись
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <li>
+                <router-link
+                  :to="{ name: 'personal-data' }"
+                  class="dropdown-item"
+                  aria-current="page"
+                  >Персональные данные</router-link
+                >
+              </li>
+              <li>
+                <button class="dropdown-item" @click="this.logOut">
+                  Выход из системы
+                </button>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>
@@ -50,9 +87,7 @@ export default {
       this["auth/actionRemoveLogIn"]()
       router.push({ name: "login" })
     },
-    ...mapActions([
-      "auth/actionRemoveLogIn", // map `this.increment()` to `this.$store.dispatch('increment')`
-    ]),
+    ...mapActions(["auth/actionRemoveLogIn"]),
   },
 }
 </script>

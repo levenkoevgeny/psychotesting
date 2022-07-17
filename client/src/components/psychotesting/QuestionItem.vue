@@ -141,7 +141,7 @@ export default {
   name: "QuestionItem",
   components: { AnswerItem },
   props: {
-    question: Object,
+    question: { type: Object, required: true },
   },
   data() {
     return {
