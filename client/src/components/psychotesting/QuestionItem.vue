@@ -31,22 +31,22 @@
         </div>
       </div>
     </div>
-    <div v-for="answer in sortedAnswers" :key="answer.id">
-      <AnswerItem
-        :answer="answer"
-        :questionType="parseInt(question.question_type)"
-        :moreThanOneAnswer="this.answersCount"
-        :questionTypes="questionTypes"
-        @deleteAnswer="this.deleteAnswer"
-      />
-    </div>
-
-    <!--    add new answer-->
-
+    <!--    radio-->
     <div
-      class="d-flex align-items-center flex-row my-3"
+      class="p-3"
       v-if="parseInt(question.question_type) === this.questionTypes['RADIO']"
     >
+      <div>
+        <div v-for="answer in sortedAnswers" :key="answer.id">
+          <AnswerItem
+            :answer="answer"
+            :questionType="parseInt(question.question_type)"
+            :moreThanOneAnswer="this.answersCount"
+            :questionTypes="questionTypes"
+            @deleteAnswer="this.deleteAnswer"
+          />
+        </div>
+      </div>
       <div class="d-flex align-items-center">
         <input class="form-check-input" type="radio" />
         <button
@@ -57,37 +57,78 @@
         >
           Добавить вариант
         </button>
-        <!--        <input type="text" class="form-control ms-2" value="Добавить вариант" />-->
       </div>
-      <div class="d-flex align-items-center flex-row">
-        <span class="ms-2">или</span>
+    </div>
+    <!--    checkbox-->
+    <div
+      class="p-3"
+      v-if="parseInt(question.question_type) === this.questionTypes['CHECKBOX']"
+    >
+      <div>
+        <div v-for="answer in sortedAnswers" :key="answer.id">
+          <AnswerItem
+            :answer="answer"
+            :questionType="parseInt(question.question_type)"
+            :moreThanOneAnswer="this.answersCount"
+            :questionTypes="questionTypes"
+            @deleteAnswer="this.deleteAnswer"
+          />
+        </div>
+      </div>
+      <div class="d-flex align-items-center">
+        <input class="form-check-input" type="checkbox" />
         <button
           type="button"
-          class="btn btn-link ms-2 px-0"
+          class="btn btn-link"
           style="text-decoration: none"
+          @click="this.addAnswer"
         >
-          Добавить вариант "Другое"
+          Добавить вариант
         </button>
       </div>
     </div>
+    <!--    select-->
     <div
-      class="d-flex align-items-center flex-row my-3"
-      v-if="parseInt(question.question_type) === this.questionTypes['CHECKBOX']"
+      class="p-3"
+      v-if="parseInt(question.question_type) === this.questionTypes['SELECT']"
     >
-      <div class="d-flex align-items-center">
-        <input class="form-check-input" type="checkbox" />
-        <input type="text" class="form-control ms-2" value="Добавить вариант" />
+      <div>
+        <div v-for="answer in sortedAnswers" :key="answer.id">
+          <AnswerItem
+            :answer="answer"
+            :questionType="parseInt(question.question_type)"
+            :moreThanOneAnswer="this.answersCount"
+            :questionTypes="questionTypes"
+            @deleteAnswer="this.deleteAnswer"
+          />
+        </div>
       </div>
-      <div class="d-flex align-items-center flex-row">
-        <span class="ms-2">или</span>
+      <div class="d-flex align-items-center">
         <button
           type="button"
-          class="btn btn-link ms-2 px-0"
+          class="btn btn-link ms-4"
           style="text-decoration: none"
+          @click="this.addAnswer"
         >
-          Добавить вариант "Другое"
+          Добавить вариант
         </button>
       </div>
+    </div>
+
+    <!--    text-->
+    <div
+      class="p-3"
+      v-if="parseInt(question.question_type) === this.questionTypes['TEXT']"
+    >
+      <input type="text" class="form-control" disabled style="width: 50%" />
+    </div>
+
+    <!--    date-->
+    <div
+      class="p-3"
+      v-if="parseInt(question.question_type) === this.questionTypes['DATE']"
+    >
+      <input type="date" class="form-control" disabled style="width: 50%" />
     </div>
 
     <hr class="dropdown-divider my-3" />
@@ -122,8 +163,13 @@
           />
           <label class="form-check-label">Обязательный вопрос</label>
         </div>
-        <button @click="$emit('addNextQuestion', question.index_number)">
-          +
+        <button
+          type="button"
+          class="btn btn-light rounded-circle link-secondary mx-2 fs-5"
+          title="Добавить новый вопрос"
+          @click="$emit('addNextQuestion', question.index_number)"
+        >
+          <font-awesome-icon icon="fa-solid fa-plus" />
         </button>
       </div>
     </div>
@@ -164,21 +210,21 @@ export default {
       })
     },
     async updateQuestionData() {
+      this.$emit("setSaving", true)
       if (
-        [
-          this.questionTypes["TEXT"],
-          this.questionTypes["SELECT"],
-          this.questionTypes["DATE"],
-        ].includes(parseInt(this.question.question_type))
+        [this.questionTypes["TEXT"], this.questionTypes["DATE"]].includes(
+          parseInt(this.question.question_type)
+        )
       ) {
-        console.log("incl")
         // const response = await questionsAPI.deleteQuestionAnswers(
         //   this.userToken,
         //   this.question.id
         // )
-        // this.question = response.data
+        // console.log("sdfsdf")
+        // this.$emit("updateQuestions", response.data)
       }
       await questionsAPI.updateQuestion(this.userToken, this.question)
+      this.$emit("setSaving", false)
     },
     async deleteAnswer(answerId, after) {
       try {

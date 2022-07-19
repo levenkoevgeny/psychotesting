@@ -34,6 +34,7 @@ class TestData(models.Model):
     organization = models.ForeignKey(Organization, verbose_name="Организация(владелец теста)", on_delete=models.CASCADE)
     test_name = models.CharField(verbose_name="Название теста", max_length=255)
     extra_data = models.TextField(verbose_name="Дополнительная информация", blank=True, null=True)
+    introduction = models.TextField(verbose_name="Вступительный текст", blank=True, null=True)
     data_created = models.DateTimeField(verbose_name="Дата и время создания", auto_now_add=True)
     is_active = models.BooleanField(verbose_name="Является активным", default=True)
 

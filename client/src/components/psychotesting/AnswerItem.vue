@@ -22,31 +22,24 @@
         v-model="answer.answer_text"
       />
     </div>
-
-    <div
-      v-if="questionType === this.questionTypes['TEXT']"
-      class="d-flex align-items-center"
-    >
-      <input type="text" class="form-control ms-2" disabled />
-    </div>
-
     <div
       v-if="questionType === this.questionTypes['SELECT']"
       class="d-flex align-items-center"
     >
       {{ answer.index_number }}.
-      <input
-        type="text"
-        class="form-control ms-2"
-        v-model="answer.answer_text"
-      />
+      <input type="text" class="form-control" v-model="answer.answer_text" />
     </div>
 
-    <div
-      v-if="questionType === this.questionTypes['DATE']"
-      class="d-flex align-items-center"
-    >
-      <input type="date" class="form-control ms-2" disabled />
+    <div>
+      <div class="form-check form-switch ms-3 my-2">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          role="switch"
+          v-model="answer.has_extra_data"
+        />
+        <label class="form-check-label">Дополнительная информация</label>
+      </div>
     </div>
 
     <div class="d-flex align-items-center" v-if="moreThanOneAnswer">

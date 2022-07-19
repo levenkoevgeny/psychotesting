@@ -148,15 +148,15 @@ class AnswerSelectableViewSet(viewsets.ModelViewSet):
         question = get_object_or_404(Question, pk=new_answer.question.id)
         answer_list = question.answers.all()
         new_answer.index_number = answer_list.count()
+        new_answer.save()
 
     def perform_destroy(self, instance):
         instance.delete()
         question = get_object_or_404(Question, pk=instance.question.id)
-        if instance.index_number:
-            answer_list_after = question.answers.filter(index_number__gt=instance.index_number)
-            for answer in answer_list_after:
-                answer.index_number = answer.index_number - 1
-                answer.save()
+        answer_list_after = question.answers.filter(index_number__gt=instance.index_number)
+        for answer in answer_list_after:
+            answer.index_number = answer.index_number - 1
+            answer.save()
 
 
 class QuestionaryDataViewSet(viewsets.ModelViewSet):
@@ -193,6 +193,12 @@ def get_me(request):
         return Response(status=status.HTTP_404_NOT_FOUND)
     except Exception:
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def save_test_running_data(request):
+    print(request.data)
+    print('save')
 
 
 # signal

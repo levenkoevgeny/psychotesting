@@ -1,5 +1,15 @@
 <template>
-  <div class="container">
+  <div v-if="this.isError" class="alert alert-danger m-0 p-3" role="alert">
+    Ошибка загрузки данных!
+  </div>
+  <div
+    v-if="isLoading"
+    class="d-flex justify-content-center align-items-center"
+    style="height: 80vh"
+  >
+    <Spinner />
+  </div>
+  <div v-else class="container">
     <h6 v-if="isSaving" class="d-inline-block mt-3">Сохранение...</h6>
     <h6 v-else class="d-inline-block mt-3">
       Сохранено
@@ -12,7 +22,7 @@
     >
       <div
         class="d-flex flex-column border component-white-background rounded-3"
-        style="position: absolute; right: -60px; top: 0px;"
+        style="position: absolute; right: -60px; top: 0px"
       >
         <button
           type="button"
@@ -27,6 +37,7 @@
           type="text"
           class="form-control fs-2"
           v-model="testData.test_name"
+          debounce="500"
         />
       </div>
       <div class="mb-3">
@@ -38,15 +49,15 @@
         </textarea>
       </div>
     </div>
-    <div v-if="isQuestionListLoading"><Spinner /></div>
-    <div v-else>
-      <div v-if="questionList.length > 0">
+    <div>
+      <div v-if="this.questionList.length > 0">
         <div v-for="question in sortedQuestions" :key="question.id">
           <QuestionItem
             :question="question"
             @deleteQuestion="this.deleteQuestionHandler"
             @addNextQuestion="this.addNewQuestion"
             @copyQuestion="this.makeQuestionCopy"
+            @setSaving="this.setSavingStatus"
           />
         </div>
       </div>
@@ -61,6 +72,8 @@ import { mapGetters } from "vuex"
 import { testDataAPI } from "@/api/testDataApi"
 import { questionsAPI } from "@/api/questionsAPI"
 
+import debounce from "lodash.debounce"
+
 export default {
   name: "TestQuestions",
   components: { Spinner, QuestionItem },
@@ -68,9 +81,12 @@ export default {
     return {
       testData: null,
       questionList: [],
-      isQuestionListLoading: true,
-      isTestDataLoading: true,
+      isLoading: true,
       isSaving: false,
+      isTestDataError: false,
+      isQuestionsError: false,
+      isAnswersError: false,
+      isError: false,
     }
   },
   computed: {
@@ -106,8 +122,9 @@ export default {
         this.isQuestionListLoading = false
       }
     } catch (e) {
+      this.isError = true
     } finally {
-      this.isTestDataLoading = false
+      this.isLoading = false
     }
   },
   methods: {
@@ -125,14 +142,20 @@ export default {
         }
       })
     },
-    async updateTestData() {
-      this.isSaving = true
-      await testDataAPI.updateTestData(
-        this.userToken,
-        this.testData
-      )
-      this.isSaving = false
+    setSavingStatus(status) {
+      this.isSaving = status
     },
+    updateTestData: debounce(async function () {
+      this.isTestDataError = false
+      this.isSaving = true
+      try {
+        await testDataAPI.updateTestData(this.userToken, this.testData)
+      } catch (error) {
+        this.isTestDataError = true
+      } finally {
+        this.isSaving = false
+      }
+    }, 500),
     async addNewQuestion(afterNumber) {
       this.isSaving = true
       const response = await questionsAPI.addNewQuestion(
@@ -162,6 +185,7 @@ export default {
         this.arrangeIndexAdd(afterNumber)
         this.questionList.push(response.data)
       } catch (error) {
+        this.isQuestionsError = true
       } finally {
         this.isSaving = false
       }
@@ -179,6 +203,16 @@ export default {
         this.isSaving = false
       }
     },
+    // updateQuestionsList(updatedQuestion) {
+    //   this.questionList = this.questionList.map((question) => {
+    //     if (question.id === updatedQuestion.id) {
+    //       for (let key in updatedQuestion) {
+    //         question[key] = updatedQuestion[key]
+    //       }
+    //     }
+    //     return question
+    //   })
+    // },
   },
   watch: {
     testData: {
