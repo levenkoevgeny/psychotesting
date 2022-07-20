@@ -1,5 +1,5 @@
 <template>
-  <div v-if="this.isError" class="alert alert-danger m-0 p-3" role="alert">
+  <div v-if="isError" class="alert alert-danger m-0 p-3" role="alert">
     Ошибка загрузки данных!
   </div>
   <div
@@ -27,7 +27,7 @@
         <button
           type="button"
           class="btn btn-light rounded-circle fs-6"
-          @click="() => this.addNewQuestion(0)"
+          @click="() => addNewQuestion(0)"
         >
           <font-awesome-icon icon="fa-solid fa-circle-plus" />
         </button>
@@ -50,14 +50,14 @@
       </div>
     </div>
     <div>
-      <div v-if="this.questionList.length > 0">
+      <div v-if="questionList.length > 0">
         <div v-for="question in sortedQuestions" :key="question.id">
           <QuestionItem
             :question="question"
-            @deleteQuestion="this.deleteQuestionHandler"
-            @addNextQuestion="this.addNewQuestion"
-            @copyQuestion="this.makeQuestionCopy"
-            @setSaving="this.setSavingStatus"
+            @deleteQuestion="deleteQuestionHandler"
+            @addNextQuestion="addNewQuestion"
+            @copyQuestion="makeQuestionCopy"
+            @setSaving="setSavingStatus"
           />
         </div>
       </div>

@@ -34,16 +34,16 @@
     <!--    radio-->
     <div
       class="p-3"
-      v-if="parseInt(question.question_type) === this.questionTypes['RADIO']"
+      v-if="parseInt(question.question_type) === questionTypes['RADIO']"
     >
       <div>
         <div v-for="answer in sortedAnswers" :key="answer.id">
           <AnswerItem
             :answer="answer"
             :questionType="parseInt(question.question_type)"
-            :moreThanOneAnswer="this.answersCount"
+            :moreThanOneAnswer="answersCount"
             :questionTypes="questionTypes"
-            @deleteAnswer="this.deleteAnswer"
+            @deleteAnswer="deleteAnswer"
           />
         </div>
       </div>
@@ -53,7 +53,7 @@
           type="button"
           class="btn btn-link"
           style="text-decoration: none"
-          @click="this.addAnswer"
+          @click="addAnswer"
         >
           Добавить вариант
         </button>
@@ -62,16 +62,16 @@
     <!--    checkbox-->
     <div
       class="p-3"
-      v-if="parseInt(question.question_type) === this.questionTypes['CHECKBOX']"
+      v-if="parseInt(question.question_type) === questionTypes['CHECKBOX']"
     >
       <div>
         <div v-for="answer in sortedAnswers" :key="answer.id">
           <AnswerItem
             :answer="answer"
             :questionType="parseInt(question.question_type)"
-            :moreThanOneAnswer="this.answersCount"
+            :moreThanOneAnswer="answersCount"
             :questionTypes="questionTypes"
-            @deleteAnswer="this.deleteAnswer"
+            @deleteAnswer="deleteAnswer"
           />
         </div>
       </div>
@@ -81,7 +81,7 @@
           type="button"
           class="btn btn-link"
           style="text-decoration: none"
-          @click="this.addAnswer"
+          @click="addAnswer"
         >
           Добавить вариант
         </button>
@@ -90,16 +90,16 @@
     <!--    select-->
     <div
       class="p-3"
-      v-if="parseInt(question.question_type) === this.questionTypes['SELECT']"
+      v-if="parseInt(question.question_type) === questionTypes['SELECT']"
     >
       <div>
         <div v-for="answer in sortedAnswers" :key="answer.id">
           <AnswerItem
             :answer="answer"
             :questionType="parseInt(question.question_type)"
-            :moreThanOneAnswer="this.answersCount"
+            :moreThanOneAnswer="answersCount"
             :questionTypes="questionTypes"
-            @deleteAnswer="this.deleteAnswer"
+            @deleteAnswer="deleteAnswer"
           />
         </div>
       </div>
@@ -108,7 +108,7 @@
           type="button"
           class="btn btn-link ms-4"
           style="text-decoration: none"
-          @click="this.addAnswer"
+          @click="addAnswer"
         >
           Добавить вариант
         </button>
@@ -118,7 +118,7 @@
     <!--    text-->
     <div
       class="p-3"
-      v-if="parseInt(question.question_type) === this.questionTypes['TEXT']"
+      v-if="parseInt(question.question_type) === questionTypes['TEXT']"
     >
       <input type="text" class="form-control" disabled style="width: 50%" />
     </div>
@@ -126,7 +126,7 @@
     <!--    date-->
     <div
       class="p-3"
-      v-if="parseInt(question.question_type) === this.questionTypes['DATE']"
+      v-if="parseInt(question.question_type) === questionTypes['DATE']"
     >
       <input type="date" class="form-control" disabled style="width: 50%" />
     </div>

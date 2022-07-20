@@ -10,7 +10,7 @@
     ><br />
     <small
       >Дата создания -
-      {{ this.addedTimeToLocalString(testData.data_created) }}</small
+      {{ addedTimeToLocalString(testData.data_created) }}</small
     >
     <hr class="dropdown-divider my-3" />
     <div class="row">
@@ -21,7 +21,7 @@
           type="button"
           class="btn btn-light rounded-circle link-secondary mx-2 fs-5"
           title="Просмотр"
-          @click="this.changeRoute(testData.id)"
+          @click="changeRoute(testData.id)"
         >
           <font-awesome-icon icon="fa-solid fa-eye" />
         </button>

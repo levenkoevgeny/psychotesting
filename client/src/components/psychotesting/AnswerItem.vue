@@ -1,7 +1,7 @@
 <template>
   <div class="form-check d-flex justify-content-between my-3">
     <div
-      v-if="questionType === this.questionTypes['RADIO']"
+      v-if="questionType === questionTypes['RADIO']"
       class="d-flex align-items-center"
     >
       <input class="form-check-input" type="radio" />
@@ -12,7 +12,7 @@
       />
     </div>
     <div
-      v-if="questionType === this.questionTypes['CHECKBOX']"
+      v-if="questionType === questionTypes['CHECKBOX']"
       class="d-flex align-items-center"
     >
       <input class="form-check-input" type="checkbox" />
@@ -23,7 +23,7 @@
       />
     </div>
     <div
-      v-if="questionType === this.questionTypes['SELECT']"
+      v-if="questionType === questionTypes['SELECT']"
       class="d-flex align-items-center"
     >
       {{ answer.index_number }}.

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="this.isError" class="alert alert-danger m-0 p-3" role="alert">
+  <div v-if="isError" class="alert alert-danger m-0 p-3" role="alert">
     Ошибка загрузки данных!
   </div>
   <div class="container">

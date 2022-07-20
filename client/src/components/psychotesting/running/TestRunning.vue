@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="this.isLoading"
+    v-if="isLoading"
     class="d-flex justify-content-center align-items-center"
     style="height: 70vh"
   >
