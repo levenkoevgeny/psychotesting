@@ -59,6 +59,8 @@ import questionTypes from "@/components/psychotesting/questionTypes"
 import { mapGetters } from "vuex"
 import { answerAPI } from "@/api/answerAPI"
 
+import debounce from "lodash.debounce"
+
 export default {
   name: "AnswerItem",
   props: {
@@ -72,9 +74,9 @@ export default {
     }
   },
   methods: {
-    async updateAnswerData() {
+    updateAnswerData: debounce(async function() {
       await answerAPI.updateAnswerData(this.userToken, this.answer)
-    },
+    }, 500),
   },
   computed: {
     ...mapGetters({

@@ -16,26 +16,33 @@
     </div>
     <div v-if="this.questionList.length > 0">
       <form @submit="submitForm" method="POST">
-        <div
-          v-for="question in sortedQuestions"
-          :key="question.id"
-          class="my-3 p-3 rounded-3 component-white-background component-left-border"
-        >
-          <h5>{{ question.question_text }}</h5>
-          <div v-if="question.question_type === this.questionTypes['RADIO']">
-            <div class="form-check" v-for="answer in question.answers">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="flexRadioDefault"
-                id="flexRadioDefault1"
-              />
-              <label class="form-check-label" for="flexRadioDefault1">
-                {{ answer.answer_text }}
-              </label>
-            </div>
-          </div>
+
+        <div v-for="question in sortedQuestions" :key="question.id">
+          <QuestionItemRunning :question="question" />
         </div>
+
+
+
+<!--        <div-->
+<!--          v-for="question in sortedQuestions"-->
+<!--          :key="question.id"-->
+<!--          class="my-3 p-3 rounded-3 component-white-background component-left-border"-->
+<!--        >-->
+<!--          <h5>{{ question.question_text }}</h5>-->
+<!--          <div v-if="question.question_type === this.questionTypes['RADIO']">-->
+<!--            <div class="form-check" v-for="answer in question.answers">-->
+<!--              <input-->
+<!--                class="form-check-input"-->
+<!--                type="radio"-->
+<!--                name="flexRadioDefault"-->
+<!--                id="flexRadioDefault1"-->
+<!--              />-->
+<!--              <label class="form-check-label" for="flexRadioDefault1">-->
+<!--                {{ answer.answer_text }}-->
+<!--              </label>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
         <button type="submit" class="btn btn-primary">Отправить</button>
       </form>
     </div>
@@ -44,6 +51,7 @@
 
 <script>
 import Spinner from "@/components/common/Spinner"
+import QuestionItemRunning from "@/components/psychotesting/running/QuestionItemRunning"
 import { testDataAPI } from "@/api/testDataApi"
 import { questionsAPI } from "@/api/questionsAPI"
 import questionTypes from "@/components/psychotesting/questionTypes"
@@ -51,7 +59,7 @@ import axios from "axios"
 
 export default {
   name: "TestRunning",
-  components: { Spinner },
+  components: { Spinner, QuestionItemRunning },
   data() {
     return {
       testData: null,

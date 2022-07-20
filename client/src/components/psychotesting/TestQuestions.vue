@@ -203,16 +203,6 @@ export default {
         this.isSaving = false
       }
     },
-    // updateQuestionsList(updatedQuestion) {
-    //   this.questionList = this.questionList.map((question) => {
-    //     if (question.id === updatedQuestion.id) {
-    //       for (let key in updatedQuestion) {
-    //         question[key] = updatedQuestion[key]
-    //       }
-    //     }
-    //     return question
-    //   })
-    // },
   },
   watch: {
     testData: {

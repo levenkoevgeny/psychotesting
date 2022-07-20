@@ -8,6 +8,7 @@ import NotFound from "@/components/common/NotFound"
 import InternalServerError from "@/components/common/InternalServerError"
 import TestRunning from "@/components/psychotesting/running/TestRunning"
 import TestListRunning from "@/components/psychotesting/running/TestListRunning"
+import Success from "@/components/psychotesting/running/Success"
 
 import store from "@/store"
 
@@ -33,6 +34,12 @@ const routes = [
     path: "/tests-running",
     name: "tests-running",
     component: TestListRunning,
+    meta: { requiresAuth: false },
+  },
+  {
+    path: "/tests-running/success",
+    name: "tests-running-success",
+    component: Success,
     meta: { requiresAuth: false },
   },
   {

@@ -183,6 +183,8 @@ import { questionsAPI } from "@/api/questionsAPI"
 import { answerAPI } from "@/api/answerAPI"
 import questionTypes from "@/components/psychotesting/questionTypes"
 
+import debounce from "lodash.debounce"
+
 export default {
   name: "QuestionItem",
   components: { AnswerItem },
@@ -209,7 +211,7 @@ export default {
         }
       })
     },
-    async updateQuestionData() {
+    updateQuestionData: debounce(async function() {
       this.$emit("setSaving", true)
       if (
         [this.questionTypes["TEXT"], this.questionTypes["DATE"]].includes(
@@ -225,7 +227,7 @@ export default {
       }
       await questionsAPI.updateQuestion(this.userToken, this.question)
       this.$emit("setSaving", false)
-    },
+    }, 500),
     async deleteAnswer(answerId, after) {
       try {
         await answerAPI.deleteAnswer(this.userToken, answerId)
