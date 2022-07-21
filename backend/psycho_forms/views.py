@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 
 from rest_framework import viewsets
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -18,6 +19,7 @@ from rest_framework.decorators import action
 from jose import jwt
 
 from .models import Organization, TestData, Question, AnswerSelectable, QuestionaryData, TestResult
+from .models import SINGLE, MULTIPLE, TEXT, DATE, SELECT
 from .serializers import OrganizationSerializer, TestDataSerializer, QuestionSerializer, AnswerSelectableSerializer, \
     QuestionaryDataSerializer, TestResultSerializer, UserSerializer
 
@@ -196,9 +198,72 @@ def get_me(request):
 
 
 @api_view(['POST'])
+@transaction.atomic
 def save_test_running_data(request):
-    print(request.data)
-    print('save')
+    current_test = get_object_or_404(TestData, pk=request.data['test_id'])
+    new_questionary_data = QuestionaryData(
+        test=current_test,
+    )
+    new_questionary_data.save()
+
+    for question in current_test.question_set.all():
+        if question.question_type == SINGLE:
+            if 'question_' + str(question.id) + '_radio' in request.POST:
+                answer = get_object_or_404(AnswerSelectable, pk=request.POST[
+                    'question_' + str(question.id) + '_radio'])
+                new_result = TestResult.objects.create(
+                    questionary_data=new_questionary_data,
+                    question=question,
+                    answer_selectable=answer
+                )
+                if answer.has_extra_data:
+                    if 'question_' + str(question.id) + '_radio_extra_input' in request.POST:
+                        new_result.extra_data = request.POST['question_' + str(question.id) + '_radio_extra_input']
+                        new_result.save()
+        elif question.question_type == MULTIPLE:
+            for i in range(question.answers.all().count()):
+                if 'question_' + str(question.id) + '_checkbox_' + str(i) in request.POST:
+                    answer = get_object_or_404(AnswerSelectable, pk=request.POST[
+                        'question_' + str(question.id) + '_checkbox_' + str(i)])
+                    new_result = TestResult.objects.create(
+                        questionary_data=new_questionary_data,
+                        question=question,
+                        answer_selectable=answer
+                    )
+                    if answer.has_extra_data:
+                        if 'question_' + str(question.id) + '_checkbox_' + str(i) + '_extra_input' in request.POST:
+                            new_result.extra_data = request.POST[
+                                'question_' + str(question.id) + '_checkbox_' + str(i) + '_extra_input']
+                            new_result.save()
+        elif question.question_type == SELECT:
+            if 'question_' + str(question.id) + '_select' in request.POST:
+                answer = get_object_or_404(AnswerSelectable, pk=request.POST[
+                    'question_' + str(question.id) + '_select'])
+                new_test_result = TestResult(
+                    questionary_data=new_questionary_data,
+                    question=question,
+                    answer_selectable=answer
+                )
+                new_test_result.save()
+        elif question.question_type == TEXT:
+            if 'question_' + str(question.id) + '_text' in request.POST:
+                new_test_result = TestResult(
+                    questionary_data=new_questionary_data,
+                    question=question,
+                    answer_text=request.POST['question_' + str(question.id) + '_text']
+                )
+                new_test_result.save()
+        elif question.question_type == DATE:
+            if 'question_' + str(question.id) + '_date' in request.POST:
+                new_test_result = TestResult(
+                    questionary_data=new_questionary_data,
+                    question=question,
+                    answer_date=request.POST['question_' + str(question.id) + '_date']
+                )
+                new_test_result.save()
+        else:
+            pass
+    return Response(status=status.HTTP_200_OK)
 
 
 # signal

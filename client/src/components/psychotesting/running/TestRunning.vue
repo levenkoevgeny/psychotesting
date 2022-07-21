@@ -11,39 +11,16 @@
       class="my-3 p-3 rounded-3 component-white-background test-data-top-border"
       v-if="testData"
     >
-      <h1 style="text-indent: 1.5rem;" class="px-3">{{ testData.test_name }}</h1>
+      <h1 style="text-indent: 1.5rem;" class="px-3 ">{{ testData.test_name }}</h1>
       <h3 style="text-indent: 1.5rem;" class="px-3">{{ testData.extra_data }}</h3>
       <div style="text-indent: 1.5rem; text-align: justify" v-html="testData.introduction" class="mt-3 px-3"></div>
     </div>
     <div v-if="this.questionList.length > 0">
       <form @submit="submitForm" method="POST">
-
+        <input type="hidden" name="test_id" :value="testData.id">
         <div v-for="question in sortedQuestions" :key="question.id">
           <QuestionItemRunning :question="question" />
         </div>
-
-
-
-<!--        <div-->
-<!--          v-for="question in sortedQuestions"-->
-<!--          :key="question.id"-->
-<!--          class="my-3 p-3 rounded-3 component-white-background component-left-border"-->
-<!--        >-->
-<!--          <h5>{{ question.question_text }}</h5>-->
-<!--          <div v-if="question.question_type === this.questionTypes['RADIO']">-->
-<!--            <div class="form-check" v-for="answer in question.answers">-->
-<!--              <input-->
-<!--                class="form-check-input"-->
-<!--                type="radio"-->
-<!--                name="flexRadioDefault"-->
-<!--                id="flexRadioDefault1"-->
-<!--              />-->
-<!--              <label class="form-check-label" for="flexRadioDefault1">-->
-<!--                {{ answer.answer_text }}-->
-<!--              </label>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
         <button type="submit" class="btn btn-primary">Отправить</button>
       </form>
     </div>
@@ -68,28 +45,34 @@ export default {
       questionTypes: questionTypes,
       isLoading: false,
       isError: false,
-      resultData: {},
+      resultData: {}
     }
   },
   methods: {
-    submitForm(e) {
+    async submitForm(e) {
+      this.isLoading = true
       e.preventDefault()
-      const formData = new FormData(e.target)
-      const obj = {}
-      for (let key of formData.keys()) {
-        obj[key] = formData.get(key)
+
+      try {
+        const response = await axios.post(
+          `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-running/save/`,
+          new FormData(e.target)
+        )
+        if (response.status == 200) {
+          window.location.href = "http://localhost:8080/tests/running/1"
+          // this.$router.replace({name: 'tests-running-success'})
+        } else { throw new Error('POST data error')}
+
+      } catch (error) {
+        console.log(error.text)
+      } finally {
+        this.isLoading = false
       }
-      console.log(obj)
-      axios.post(
-        `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-running/save/`,
-        new FormData(e.target)
-      )
-      // console.log(new FormData(e.target))
-    },
+    }
   },
   computed: {
-    sortedQuestions: function () {
-      return this.questionList.sort(function (a, b) {
+    sortedQuestions: function() {
+      return this.questionList.sort(function(a, b) {
         if (a.index_number < b.index_number) {
           return -1
         }
@@ -98,7 +81,7 @@ export default {
         }
         return 0
       })
-    },
+    }
   },
   async created() {
     try {
@@ -118,7 +101,7 @@ export default {
     } finally {
       this.isLoading = false
     }
-  },
+  }
 }
 </script>
 

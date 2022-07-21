@@ -27,7 +27,7 @@ class Organization(models.Model):
     class Meta:
         ordering = ('id',)
         verbose_name = 'Organization'
-        verbose_name_plural = '1 Organizations'
+        verbose_name_plural = 'Organizations'
 
 
 class TestData(models.Model):

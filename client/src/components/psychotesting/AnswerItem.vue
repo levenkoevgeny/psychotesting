@@ -30,7 +30,7 @@
       <input type="text" class="form-control" v-model="answer.answer_text" />
     </div>
 
-    <div>
+    <div v-if="questionType === questionTypes['RADIO'] || questionType === questionTypes['CHECKBOX']">
       <div class="form-check form-switch ms-3 my-2">
         <input
           class="form-check-input"

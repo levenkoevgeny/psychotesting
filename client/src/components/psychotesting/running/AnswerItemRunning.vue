@@ -23,13 +23,14 @@
       type="checkbox"
       :name="'question_' + question.id + '_checkbox_' + index"
       :value="answer.id"
-      @change="changeHandler"
+      @change="checkboxChangeHandler"
     />
-    <label class="form-check-label" for="flexRadioDefault1">
+    <label class="form-check-label">
       {{ answer.answer_text }}
     </label>
-    <div style="display: block" v-if="answer.has_extra_data">
-      <input type="text" class="form-control" :disabled="!checkBoxStatus">
+    <div v-bind:class="{checkbox_display_none: checkBoxStatus}" v-if="answer.has_extra_data">
+      <input type="text" class="form-control my-2" :disabled="checkBoxStatus"
+             :name="'question_' + question.id + '_checkbox_' + index + '_extra_input'" :required="!checkBoxStatus">
     </div>
   </div>
 
@@ -49,31 +50,17 @@ export default {
   data() {
     return {
       questionTypes: questionTypes,
-      radioStatus: true,
-      checkBoxStatus: {
-
-      }
+      radioStatus: false,
+      checkBoxStatus: true
     }
   },
   methods: {
-    changeHandler(e) {
-      // if (this.answer.has_extra_data) {
-      //   this.radioStatus = true
-      // }
-
+    checkboxChangeHandler(e) {
       if (e.target.checked) {
-        this.checkBoxStatus = true
-      } else {
         this.checkBoxStatus = false
+      } else {
+        this.checkBoxStatus = true
       }
-
-
-      // if (e.target.checked) {
-      //   console.log(e.target.checked)
-      // } else {
-      //   console.log(e.target.checked)
-      // }
-
     }
   },
   computed: {}
@@ -81,5 +68,7 @@ export default {
 </script>
 
 <style scoped>
-
+.checkbox_display_none {
+  display: none;
+}
 </style>
