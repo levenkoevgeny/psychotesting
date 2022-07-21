@@ -11,8 +11,9 @@
       class="my-3 p-3 rounded-3 component-white-background test-data-top-border"
       v-if="testData"
     >
-      <h1>{{ testData.test_name }}</h1>
-      <h3>{{ testData.extra_data }}</h3>
+      <h1 style="text-indent: 1.5rem;" class="px-3">{{ testData.test_name }}</h1>
+      <h3 style="text-indent: 1.5rem;" class="px-3">{{ testData.extra_data }}</h3>
+      <div style="text-indent: 1.5rem; text-align: justify" v-html="testData.introduction" class="mt-3 px-3"></div>
     </div>
     <div v-if="this.questionList.length > 0">
       <form @submit="submitForm" method="POST">

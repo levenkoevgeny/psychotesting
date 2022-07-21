@@ -48,6 +48,14 @@
           >{{ testData.extra_data }}
         </textarea>
       </div>
+      <div class="mb-3">
+        <textarea
+          v-model="testData.introduction"
+          class="form-control fs-6"
+          rows="5"
+        >{{ testData.introduction }}
+        </textarea>
+      </div>
     </div>
     <div>
       <div v-if="questionList.length > 0">

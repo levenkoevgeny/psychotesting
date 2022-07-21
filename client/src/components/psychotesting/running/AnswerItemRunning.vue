@@ -12,8 +12,8 @@
     <label class="form-check-label">
       {{ answer.answer_text }}
     </label>
-    <div style="display: none">
-      <input type="text" class="form-control" disabled>
+    <div style="display: block" v-if="answer.has_extra_data">
+      <input type="text" class="form-control" :disabled="radioStatus">
     </div>
   </div>
 
@@ -23,14 +23,13 @@
       type="checkbox"
       :name="'question_' + question.id + '_checkbox_' + index"
       :value="answer.id"
-      :required="question.has_required_answer"
       @change="changeHandler"
     />
     <label class="form-check-label" for="flexRadioDefault1">
       {{ answer.answer_text }}
     </label>
-    <div style="display: none">
-      <input type="text" class="form-control" disabled>
+    <div style="display: block" v-if="answer.has_extra_data">
+      <input type="text" class="form-control" :disabled="!checkBoxStatus">
     </div>
   </div>
 
@@ -45,27 +44,39 @@ export default {
   props: {
     answer: { type: Object, required: true },
     question: { type: Object, required: true },
-    index: { type: Number, required: true },
+    index: { type: Number, required: true }
   },
   data() {
     return {
       questionTypes: questionTypes,
-      radioStatus: false
+      radioStatus: true,
+      checkBoxStatus: {
+
+      }
     }
   },
   methods: {
     changeHandler(e) {
+      // if (this.answer.has_extra_data) {
+      //   this.radioStatus = true
+      // }
+
       if (e.target.checked) {
-        console.log(e.target.checked)
+        this.checkBoxStatus = true
       } else {
-        console.log(e.target.checked)
+        this.checkBoxStatus = false
       }
+
+
+      // if (e.target.checked) {
+      //   console.log(e.target.checked)
+      // } else {
+      //   console.log(e.target.checked)
+      // }
 
     }
   },
-  computed: {
-
-  }
+  computed: {}
 }
 </script>
 
