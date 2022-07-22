@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-
+from django.core.exceptions import ValidationError
 from rest_framework import viewsets
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
@@ -22,6 +22,8 @@ from .models import Organization, TestData, Question, AnswerSelectable, Question
 from .models import SINGLE, MULTIPLE, TEXT, DATE, SELECT
 from .serializers import OrganizationSerializer, TestDataSerializer, QuestionSerializer, AnswerSelectableSerializer, \
     QuestionaryDataSerializer, TestResultSerializer, UserSerializer
+
+from datetime import date
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):
@@ -66,6 +68,77 @@ class TestDataViewSet(viewsets.ModelViewSet):
                                                 index_number=answer.index_number)
 
         return Response(TestDataSerializer(copy_test).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'])
+    def results_full_text(self, request, pk=None):
+        response_results_list = []
+        test_data = get_object_or_404(TestData, pk=pk)
+        result_list_all = TestResult.objects.filter(questionary_data__test=test_data)
+        for questionary in QuestionaryData.objects.all():
+            result_dict = {'date': str(questionary.data_created.date())}
+            for question in test_data.question_set.all():
+                question_results = result_list_all.filter(questionary_data=questionary, question=question)
+                res_str = ''
+                if question_results.count() > 0:
+                    for q_r in question_results:
+                        if q_r.answer_selectable:
+                            res_str = res_str + str(q_r.answer_selectable)
+                            res_str += '; '
+                        if q_r.answer_text:
+                            res_str = res_str + str(q_r.answer_text)
+                            res_str += '; '
+                        if q_r.answer_date:
+                            res_str = res_str + str(q_r.answer_date)
+                            res_str += '; '
+                        if q_r.extra_data:
+                            res_str += 'пояснение к ответу - '
+                            res_str = res_str + str(q_r.extra_data)
+                            res_str += '; '
+                result_dict[question.id] = res_str
+            response_results_list.append(result_dict)
+        return Response(response_results_list, status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'])
+    def results_answers_count(self, request, pk=None):
+        response_results_dict = {}
+        test_data = get_object_or_404(TestData, pk=pk)
+        result_list_all = TestResult.objects.filter(questionary_data__test=test_data)
+
+        for question in test_data.question_set.all():
+            if question.question_type in [SINGLE, MULTIPLE, SELECT]:
+                for answer in question.answers.all():
+                    response_results_dict[answer.id] = result_list_all.filter(answer_selectable=answer).count()
+        print(response_results_dict)
+        return Response(response_results_dict, status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'])
+    def results_answers_1_0(self, request, pk=None):
+        response_results_list = []
+        test_data = get_object_or_404(TestData, pk=pk)
+        result_list_all = TestResult.objects.filter(questionary_data__test=test_data)
+        for questionary in QuestionaryData.objects.all():
+            result_dict = {'date': str(questionary.data_created.date())}
+            for question in test_data.question_set.all():
+                question_results = result_list_all.filter(questionary_data=questionary, question=question)
+                res_str = ''
+                if question_results.count() > 0:
+                    for q_r in question_results:
+                        if q_r.answer_selectable:
+                            res_str = res_str + str(q_r.answer_selectable)
+                            res_str += '; '
+                        if q_r.answer_text:
+                            res_str = res_str + str(q_r.answer_text)
+                            res_str += '; '
+                        if q_r.answer_date:
+                            res_str = res_str + str(q_r.answer_date)
+                            res_str += '; '
+                        if q_r.extra_data:
+                            res_str += 'пояснение к ответу - '
+                            res_str = res_str + str(q_r.extra_data)
+                            res_str += '; '
+                result_dict[question.id] = res_str
+            response_results_list.append(result_dict)
+        return Response(response_results_list, status.HTTP_200_OK)
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
@@ -245,7 +318,7 @@ def save_test_running_data(request):
                     answer_selectable=answer
                 )
                 new_test_result.save()
-        elif question.question_type == TEXT:
+        elif question.question_type == TEXT and question.has_required_answer:
             if 'question_' + str(question.id) + '_text' in request.POST:
                 new_test_result = TestResult(
                     questionary_data=new_questionary_data,
@@ -253,14 +326,18 @@ def save_test_running_data(request):
                     answer_text=request.POST['question_' + str(question.id) + '_text']
                 )
                 new_test_result.save()
-        elif question.question_type == DATE:
+        elif question.question_type == DATE and question.has_required_answer:
             if 'question_' + str(question.id) + '_date' in request.POST:
-                new_test_result = TestResult(
-                    questionary_data=new_questionary_data,
-                    question=question,
-                    answer_date=request.POST['question_' + str(question.id) + '_date']
-                )
-                new_test_result.save()
+                serializer = TestResultSerializer(
+                    data={'questionary_data': new_questionary_data.id, 'question': question.id,
+                          'answer_date': request.POST['question_' + str(question.id) + '_date']})
+                if serializer.is_valid():
+                    new_test_result = TestResult(
+                        questionary_data=new_questionary_data,
+                        question=question,
+                        answer_date=request.POST['question_' + str(question.id) + '_date']
+                    )
+                    new_test_result.save()
         else:
             pass
     return Response(status=status.HTTP_200_OK)

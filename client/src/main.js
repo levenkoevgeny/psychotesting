@@ -10,6 +10,7 @@ import { faTrashCan } from "@fortawesome/free-regular-svg-icons"
 import { faCircleCheck } from "@fortawesome/free-regular-svg-icons"
 import { faEye } from "@fortawesome/free-regular-svg-icons"
 import { faPlusSquare } from "@fortawesome/free-solid-svg-icons"
+import { faSquarePollVertical } from "@fortawesome/free-solid-svg-icons"
 
 library.add(faClone)
 library.add(faTrashCan)
@@ -17,6 +18,7 @@ library.add(faCircleCheck)
 library.add(faCircleCheck)
 library.add(faEye)
 library.add(faPlusSquare)
+library.add(faSquarePollVertical)
 
 createApp(App)
   .use(router)

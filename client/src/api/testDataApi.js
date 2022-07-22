@@ -22,6 +22,30 @@ export const testDataAPI = {
     )
   },
 
+  async getTestDataResultFullText(token, testId) {
+    return axios.post(
+      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-data/${testId}/results_full_text/`,
+      {},
+      authHeaders(token)
+    )
+  },
+
+  async getTestDataResultAnswersCount(token, testId) {
+    return axios.post(
+      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-data/${testId}/results_answers_count/`,
+      {},
+      authHeaders(token)
+    )
+  },
+
+  async getTestDataResult_1_0(token, testId) {
+    return axios.post(
+      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-data/${testId}/results_answers_1_0/`,
+      {},
+      authHeaders(token)
+    )
+  },
+
   async addNewTest(token, testData) {
     return axios.post(
       `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-data/`,

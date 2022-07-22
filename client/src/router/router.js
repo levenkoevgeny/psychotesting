@@ -9,6 +9,9 @@ import InternalServerError from "@/components/common/InternalServerError"
 import TestRunning from "@/components/psychotesting/running/TestRunning"
 import TestListRunning from "@/components/psychotesting/running/TestListRunning"
 import Success from "@/components/psychotesting/running/Success"
+import TestResultsFullText from "@/components/psychotesting/results/TestResultsFullText"
+import TestResultsAnswersCount from "@/components/psychotesting/results/TestResultsAnswersCount"
+import TestResultAnswers_1_0 from "@/components/psychotesting/results/TestResultAnswers_1_0"
 
 import store from "@/store"
 
@@ -47,6 +50,24 @@ const routes = [
     name: "test_running",
     component: TestRunning,
     meta: { requiresAuth: false },
+  },
+  {
+    path: "/tests/result_full_text/:id",
+    name: "test_result_full_text",
+    component: TestResultsFullText,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/tests/result_answers_count/:id",
+    name: "test_result_answers_count",
+    component: TestResultsAnswersCount,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/tests/result_answers_1_0/:id",
+    name: "test_result_answers_1_0",
+    component: TestResultAnswers_1_0,
+    meta: { requiresAuth: true },
   },
   {
     path: "/login",
