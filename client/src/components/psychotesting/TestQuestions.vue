@@ -36,9 +36,21 @@
         <input
           type="text"
           class="form-control fs-2"
+          :class="{
+            'border-danger': v$.testData.test_name.$silentErrors.length,
+          }"
           v-model="testData.test_name"
           debounce="500"
         />
+
+        <div
+          :class="{
+            invalid: v$.testData.test_name.$silentErrors.length,
+            'visually-hidden': !v$.testData.test_name.$silentErrors.length,
+          }"
+        >
+          Это поле не может быть пустым!
+        </div>
       </div>
       <div class="mb-3">
         <textarea
@@ -79,6 +91,8 @@ import QuestionItem from "@/components/psychotesting/QuestionItem"
 import { mapGetters } from "vuex"
 import { testDataAPI } from "@/api/testDataApi"
 import { questionsAPI } from "@/api/questionsAPI"
+import useVuelidate from "@vuelidate/core"
+import { required, minLength, email } from "@vuelidate/validators"
 
 import debounce from "lodash.debounce"
 
@@ -87,7 +101,10 @@ export default {
   components: { Spinner, QuestionItem },
   data() {
     return {
-      testData: null,
+      testData: {
+        test_name: "",
+      },
+      name: "",
       questionList: [],
       isLoading: true,
       isSaving: false,
@@ -95,6 +112,14 @@ export default {
       isQuestionsError: false,
       isAnswersError: false,
       isError: false,
+    }
+  },
+  setup: () => ({ v$: useVuelidate() }),
+  validations() {
+    return {
+      testData: {
+        test_name: { required },
+      },
     }
   },
   computed: {
@@ -215,7 +240,9 @@ export default {
   watch: {
     testData: {
       handler(newValue, oldValue) {
-        this.updateTestData()
+        if (!this.v$.$invalid) {
+          this.updateTestData()
+        }
       },
       deep: true,
     },
@@ -223,4 +250,14 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.invalid {
+  color: #dc3545;
+}
+.display-visible {
+  display: none;
+}
+.display-visible {
+  display: block;
+}
+</style>
