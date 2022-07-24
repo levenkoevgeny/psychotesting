@@ -1,8 +1,8 @@
 <template>
   <div
-    class="my-3 p-3 rounded-3 component-white-background component-left-border"
+    class="my-3 p-2 rounded-3 component-white-background component-left-border"
   >
-    <div class="row">
+    <div class="row py-2 px-3">
       <div class="col-md-6">
         <div class="my-3">
           <input
@@ -31,23 +31,20 @@
         </div>
       </div>
     </div>
+
     <!--    radio-->
-    <div
-      class="p-3"
-      v-if="parseInt(question.question_type) === questionTypes['RADIO']"
-    >
-      <div>
-        <div v-for="answer in sortedAnswers" :key="answer.id">
-          <AnswerItem
-            :answer="answer"
-            :questionType="parseInt(question.question_type)"
-            :moreThanOneAnswer="answersCount"
-            :questionTypes="questionTypes"
-            @deleteAnswer="deleteAnswer"
-          />
-        </div>
-      </div>
-      <div class="d-flex align-items-center">
+    <div v-if="parseInt(question.question_type) === questionTypes['RADIO']">
+      <AnswerItem
+        v-for="answer in sortedAnswers"
+        :key="answer.id"
+        :answer="answer"
+        :questionType="parseInt(question.question_type)"
+        :moreThanOneAnswer="answersCount"
+        :questionTypes="questionTypes"
+        @deleteAnswer="deleteAnswer"
+      />
+
+      <div class="d-flex align-items-center my-2 py-2 px-3">
         <input class="form-check-input" type="radio" />
         <button
           type="button"
@@ -60,22 +57,18 @@
       </div>
     </div>
     <!--    checkbox-->
-    <div
-      class="p-3"
-      v-if="parseInt(question.question_type) === questionTypes['CHECKBOX']"
-    >
-      <div>
-        <div v-for="answer in sortedAnswers" :key="answer.id">
-          <AnswerItem
-            :answer="answer"
-            :questionType="parseInt(question.question_type)"
-            :moreThanOneAnswer="answersCount"
-            :questionTypes="questionTypes"
-            @deleteAnswer="deleteAnswer"
-          />
-        </div>
-      </div>
-      <div class="d-flex align-items-center">
+    <div v-if="parseInt(question.question_type) === questionTypes['CHECKBOX']">
+      <AnswerItem
+        v-for="answer in sortedAnswers"
+        :key="answer.id"
+        :answer="answer"
+        :questionType="parseInt(question.question_type)"
+        :moreThanOneAnswer="answersCount"
+        :questionTypes="questionTypes"
+        @deleteAnswer="deleteAnswer"
+      />
+
+      <div class="d-flex align-items-center my-2 py-2 px-3">
         <input class="form-check-input" type="checkbox" />
         <button
           type="button"
@@ -88,21 +81,17 @@
       </div>
     </div>
     <!--    select-->
-    <div
-      class="p-3"
-      v-if="parseInt(question.question_type) === questionTypes['SELECT']"
-    >
-      <div>
-        <div v-for="answer in sortedAnswers" :key="answer.id">
-          <AnswerItem
-            :answer="answer"
-            :questionType="parseInt(question.question_type)"
-            :moreThanOneAnswer="answersCount"
-            :questionTypes="questionTypes"
-            @deleteAnswer="deleteAnswer"
-          />
-        </div>
-      </div>
+    <div v-if="parseInt(question.question_type) === questionTypes['SELECT']">
+      <AnswerItem
+        v-for="answer in sortedAnswers"
+        :key="answer.id"
+        :answer="answer"
+        :questionType="parseInt(question.question_type)"
+        :moreThanOneAnswer="answersCount"
+        :questionTypes="questionTypes"
+        @deleteAnswer="deleteAnswer"
+      />
+
       <div class="d-flex align-items-center">
         <button
           type="button"
@@ -117,18 +106,18 @@
 
     <!--    text-->
     <div
-      class="p-3"
+      class="px-3"
       v-if="parseInt(question.question_type) === questionTypes['TEXT']"
     >
-      <input type="text" class="form-control" disabled style="width: 50%" />
+      <input type="text" class="form-control mt-2" disabled />
     </div>
 
     <!--    date-->
     <div
-      class="p-3"
+      class="px-3"
       v-if="parseInt(question.question_type) === questionTypes['DATE']"
     >
-      <input type="date" class="form-control" disabled style="width: 50%" />
+      <input type="date" class="form-control" disabled />
     </div>
 
     <hr class="dropdown-divider my-3" />
@@ -152,6 +141,14 @@
         >
           <font-awesome-icon icon="fa-regular fa-trash-can" />
         </button>
+        <button
+          type="button"
+          class="btn btn-light rounded-circle link-secondary mx-2 fs-5"
+          title="Добавить новый вопрос"
+          @click="$emit('addNextQuestion', question.index_number)"
+        >
+          <font-awesome-icon icon="fa-solid fa-plus" />
+        </button>
       </div>
       <div class="col-md-6 col-lg-4 d-flex align-items-center">
         <div class="form-check form-switch ms-3 my-2">
@@ -163,14 +160,6 @@
           />
           <label class="form-check-label">Обязательный вопрос</label>
         </div>
-        <button
-          type="button"
-          class="btn btn-light rounded-circle link-secondary mx-2 fs-5"
-          title="Добавить новый вопрос"
-          @click="$emit('addNextQuestion', question.index_number)"
-        >
-          <font-awesome-icon icon="fa-solid fa-plus" />
-        </button>
       </div>
     </div>
   </div>
@@ -211,7 +200,7 @@ export default {
         }
       })
     },
-    updateQuestionData: debounce(async function() {
+    updateQuestionData: debounce(async function () {
       this.$emit("setSaving", true)
       if (
         [this.questionTypes["TEXT"], this.questionTypes["DATE"]].includes(

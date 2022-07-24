@@ -2,13 +2,17 @@
   <div
     class="my-3 p-3 rounded-3 component-white-background component-left-border"
   >
-    <router-link :to="{ name: 'test_questions', params: { id: testData.id } }" class="fs-5 fw-bold">
+    <router-link
+      :to="{ name: 'test_questions', params: { id: testData.id } }"
+      class="fs-5 fw-bold"
+    >
       {{ testData.test_name }}
     </router-link>
     <p class="card-text">{{ testData.extra_data }}</p>
-    <small>Количество вопросов - {{ testData.get_questions_count }}</small><br />
+    <small>Количество вопросов - {{ testData.get_questions_count }}</small
+    ><br />
     <small
-    >Дата создания -
+      >Дата создания -
       {{ addedTimeToLocalString(testData.data_created) }}</small
     >
     <hr class="dropdown-divider my-3" />
@@ -24,27 +28,49 @@
         >
           <font-awesome-icon icon="fa-solid fa-eye" />
         </button>
-        <a class="nav-link link-secondary dropdown-toggle mx-2 fs-5" data-bs-toggle="dropdown" href="#" role="button"
-           aria-expanded="false">
+        <a
+          class="nav-link link-secondary dropdown-toggle mx-2 fs-5"
+          data-bs-toggle="dropdown"
+          href="#"
+          role="button"
+          aria-expanded="false"
+        >
           <font-awesome-icon icon="fa-solid fa-square-poll-vertical" />
         </a>
         <ul class="dropdown-menu">
           <li>
-            <router-link :to="{ name: 'test_result_full_text', params: { id: testData.id } }" class="dropdown-item">
+            <router-link
+              :to="{
+                name: 'test_result_full_text',
+                params: { id: testData.id },
+              }"
+              class="dropdown-item"
+            >
               Полный текст
             </router-link>
           </li>
           <li>
-            <router-link :to="{ name: 'test_result_answers_count', params: { id: testData.id } }" class="dropdown-item">
+            <router-link
+              :to="{
+                name: 'test_result_answers_count',
+                params: { id: testData.id },
+              }"
+              class="dropdown-item"
+            >
               Количество ответов
             </router-link>
           </li>
           <li>
-            <router-link :to="{ name: 'test_result_answers_1_0', params: { id: testData.id } }" class="dropdown-item">
+            <router-link
+              :to="{
+                name: 'test_result_answers_1_0',
+                params: { id: testData.id },
+              }"
+              class="dropdown-item"
+            >
               Ответы "1" "0"
             </router-link>
           </li>
-
         </ul>
         <button
           type="button"
@@ -52,7 +78,7 @@
           title="Создать копию"
           @click="$emit('makeTestCopy', testData.id)"
         >
-          <font-awesome-icon icon="fa-regular fa-clone" />
+          <font-awesome-icon icon="fa-solid fa-clone" />
         </button>
         <button
           type="button"
@@ -60,7 +86,7 @@
           title="Удалить"
           @click="$emit('deleteTest', testData.id)"
         >
-          <font-awesome-icon icon="fa-regular fa-trash-can" />
+          <font-awesome-icon icon="fa-solid fa-trash-can" />
         </button>
       </div>
       <div class="col-md-6 col-lg-4 d-flex align-items-center">
@@ -85,7 +111,7 @@ import { mapGetters } from "vuex"
 export default {
   name: "TestItem",
   props: {
-    testData: { type: Object, required: true }
+    testData: { type: Object, required: true },
   },
   methods: {
     addedTimeToLocalString(testDateTime) {
@@ -98,25 +124,25 @@ export default {
     changeRoute(testId) {
       let route = this.$router.resolve({
         name: "test_running",
-        params: { id: testId }
+        params: { id: testId },
       })
       window.open(route.href, "_blank")
-    }
+    },
   },
   computed: {
     ...mapGetters({
       userData: "auth/getUser",
-      userToken: "auth/getToken"
-    })
+      userToken: "auth/getToken",
+    }),
   },
   watch: {
     testData: {
       handler(newValue, oldValue) {
         this.updateTestData()
       },
-      deep: true
-    }
-  }
+      deep: true,
+    },
+  },
 }
 </script>
 

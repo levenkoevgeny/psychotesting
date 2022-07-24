@@ -11,13 +11,19 @@
       class="my-3 p-3 rounded-3 component-white-background test-data-top-border"
       v-if="testData"
     >
-      <h1 style="text-indent: 1.5rem;" class="px-3 ">{{ testData.test_name }}</h1>
-      <h3 style="text-indent: 1.5rem;" class="px-3">{{ testData.extra_data }}</h3>
-      <div style="text-indent: 1.5rem; text-align: justify" v-html="testData.introduction" class="mt-3 px-3"></div>
+      <h1 style="text-indent: 1.5rem" class="px-3">{{ testData.test_name }}</h1>
+      <h3 style="text-indent: 1.5rem" class="px-3">
+        {{ testData.extra_data }}
+      </h3>
+      <div
+        style="text-indent: 1.5rem; text-align: justify"
+        v-html="testData.introduction"
+        class="mt-3 px-3"
+      ></div>
     </div>
     <div v-if="this.questionList.length > 0">
       <form @submit="submitForm" method="POST">
-        <input type="hidden" name="test_id" :value="testData.id">
+        <input type="hidden" name="test_id" :value="testData.id" />
         <div v-for="question in sortedQuestions" :key="question.id">
           <QuestionItemRunning :question="question" />
         </div>
@@ -45,7 +51,7 @@ export default {
       questionTypes: questionTypes,
       isLoading: false,
       isError: false,
-      resultData: {}
+      resultData: {},
     }
   },
   methods: {
@@ -59,20 +65,21 @@ export default {
           new FormData(e.target)
         )
         if (response.status == 200) {
-          window.location.href = "http://localhost:8080/tests/running/1"
-          // this.$router.replace({name: 'tests-running-success'})
-        } else { throw new Error('POST data error')}
-
+          // window.location.href = "http://localhost:8080/tests/running/1"
+          await this.$router.replace({ name: "tests-running-success" })
+        } else {
+          throw new Error("POST data error")
+        }
       } catch (error) {
         console.log(error.text)
       } finally {
         this.isLoading = false
       }
-    }
+    },
   },
   computed: {
-    sortedQuestions: function() {
-      return this.questionList.sort(function(a, b) {
+    sortedQuestions: function () {
+      return this.questionList.sort(function (a, b) {
         if (a.index_number < b.index_number) {
           return -1
         }
@@ -81,7 +88,7 @@ export default {
         }
         return 0
       })
-    }
+    },
   },
   async created() {
     try {
@@ -101,7 +108,7 @@ export default {
     } finally {
       this.isLoading = false
     }
-  }
+  },
 }
 </script>
 

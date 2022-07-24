@@ -10,19 +10,69 @@
     <Spinner />
   </div>
   <div v-else class="container-fluid">
-    <div v-if="questionList.length > 0">
-      <table class="table">
-        <thead>
-        <tr>
-          <th>Дата</th>
-          <th scope="col" v-for="question in sortedQuestions" :key="question.id">{{ question.question_text }}</th>
-        </tr>
+    <div v-if="questionList.length > 0" class="my-3">
+      <div class="dropdown my-3">
+        <button
+          class="btn btn-outline-secondary dropdown-toggle"
+          type="button"
+          id="dropdownMenuButton1"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          Режим просмотра
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+          <li>
+            <button
+              class="dropdown-item"
+              @click="replaceView('test_result_full_text')"
+            >
+              Полный текст
+            </button>
+          </li>
+          <li>
+            <button
+              class="dropdown-item"
+              @click="replaceView('test_result_answers_count')"
+            >
+              Количество ответов
+            </button>
+          </li>
+          <li>
+            <button
+              class="dropdown-item"
+              @click="replaceView('test_result_answers_1_0')"
+            >
+              Ответы "1" "0"
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <table
+        class="table component-white-background table-bordered table-striped table-hover"
+      >
+        <thead class="table-warning">
+          <tr>
+            <th>Дата</th>
+            <th
+              scope="col"
+              v-for="question in sortedQuestions"
+              :key="question.id"
+            >
+              {{ question.question_text }}
+            </th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="result in resultsList" :key="result.id">
-          <td><nobr>{{result['date']}}</nobr></td>
-          <td v-for="question in sortedQuestions" :key="question.id">{{result[question.id]}}</td>
-        </tr>
+          <tr v-for="result in resultsList" :key="result.id">
+            <td>
+              <nobr>{{ result["date"] }}</nobr>
+            </td>
+            <td v-for="question in sortedQuestions" :key="question.id">
+              {{ result[question.id] }}
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -44,15 +94,15 @@ export default {
       questionList: [],
       resultsList: [],
       isLoading: true,
-      isError: false
+      isError: false,
     }
   },
   computed: {
     ...mapGetters({
-      userToken: "auth/getToken"
+      userToken: "auth/getToken",
     }),
-    sortedQuestions: function() {
-      return this.questionList.sort(function(a, b) {
+    sortedQuestions: function () {
+      return this.questionList.sort(function (a, b) {
         if (a.index_number < b.index_number) {
           return -1
         }
@@ -61,7 +111,7 @@ export default {
         }
         return 0
       })
-    }
+    },
   },
   async created() {
     try {
@@ -70,20 +120,31 @@ export default {
         this.$route.params.id
       )
       this.questionList = await questionsResponse.data
-      const testDataResultsResponse = await testDataAPI.getTestDataResultFullText(
+
+      const testDataResultsResponse =
+        await testDataAPI.getTestDataResultFullText(
+          this.userToken,
+          this.$route.params.id
+        )
+      this.resultsList = testDataResultsResponse.data
+
+      const testDataResponse = await testDataAPI.getTestData(
         this.userToken,
         this.$route.params.id
       )
-      this.resultsList = testDataResultsResponse.data
+      this.testData = testDataResponse.data
     } catch (error) {
       this.isError = true
     } finally {
       this.isLoading = false
     }
-  }
+  },
+  methods: {
+    replaceView(viewName) {
+      this.$router.replace({ name: viewName, params: { id: this.testData.id } })
+    },
+  },
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -10,11 +10,11 @@
     <Spinner />
   </div>
   <div v-else class="container">
-    <h6 v-if="isSaving" class="d-inline-block mt-3">Сохранение...</h6>
-    <h6 v-else class="d-inline-block mt-3">
+    <h5 v-if="isSaving" class="d-inline-block mt-3">Сохранение...</h5>
+    <h5 v-else class="d-inline-block mt-3">
       Сохранено
       <font-awesome-icon icon="fa-regular fa-circle-check" />
-    </h6>
+    </h5>
     <div
       v-if="testData"
       class="my-3 p-3 rounded-3 component-white-background test-data-top-border"
@@ -53,7 +53,7 @@
           v-model="testData.introduction"
           class="form-control fs-6"
           rows="5"
-        >{{ testData.introduction }}
+          >{{ testData.introduction }}
         </textarea>
       </div>
     </div>

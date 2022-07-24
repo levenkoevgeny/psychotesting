@@ -3,7 +3,7 @@
     <div class="container-fluid">
       <a class="navbar-brand" href="/" v-if="user">
         <img
-          src=""
+          src="https://www.amia.by/favicon.ico"
           alt=""
           width="30"
           height="24"

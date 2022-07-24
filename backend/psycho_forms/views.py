@@ -108,7 +108,6 @@ class TestDataViewSet(viewsets.ModelViewSet):
             if question.question_type in [SINGLE, MULTIPLE, SELECT]:
                 for answer in question.answers.all():
                     response_results_dict[answer.id] = result_list_all.filter(answer_selectable=answer).count()
-        print(response_results_dict)
         return Response(response_results_dict, status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'])
@@ -120,23 +119,11 @@ class TestDataViewSet(viewsets.ModelViewSet):
             result_dict = {'date': str(questionary.data_created.date())}
             for question in test_data.question_set.all():
                 question_results = result_list_all.filter(questionary_data=questionary, question=question)
-                res_str = ''
-                if question_results.count() > 0:
-                    for q_r in question_results:
-                        if q_r.answer_selectable:
-                            res_str = res_str + str(q_r.answer_selectable)
-                            res_str += '; '
-                        if q_r.answer_text:
-                            res_str = res_str + str(q_r.answer_text)
-                            res_str += '; '
-                        if q_r.answer_date:
-                            res_str = res_str + str(q_r.answer_date)
-                            res_str += '; '
-                        if q_r.extra_data:
-                            res_str += 'пояснение к ответу - '
-                            res_str = res_str + str(q_r.extra_data)
-                            res_str += '; '
-                result_dict[question.id] = res_str
+                for answer in question.answers.all():
+                    if question_results.filter(answer_selectable=answer).count() > 0:
+                        result_dict[answer.id] = '1'
+                    else:
+                        result_dict[answer.id] = '0'
             response_results_list.append(result_dict)
         return Response(response_results_list, status.HTTP_200_OK)
 
@@ -318,7 +305,7 @@ def save_test_running_data(request):
                     answer_selectable=answer
                 )
                 new_test_result.save()
-        elif question.question_type == TEXT and question.has_required_answer:
+        elif question.question_type == TEXT:
             if 'question_' + str(question.id) + '_text' in request.POST:
                 new_test_result = TestResult(
                     questionary_data=new_questionary_data,
@@ -326,7 +313,7 @@ def save_test_running_data(request):
                     answer_text=request.POST['question_' + str(question.id) + '_text']
                 )
                 new_test_result.save()
-        elif question.question_type == DATE and question.has_required_answer:
+        elif question.question_type == DATE:
             if 'question_' + str(question.id) + '_date' in request.POST:
                 serializer = TestResultSerializer(
                     data={'questionary_data': new_questionary_data.id, 'question': question.id,
