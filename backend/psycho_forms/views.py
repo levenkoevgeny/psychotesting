@@ -5,10 +5,9 @@ from django.dispatch import receiver
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.db import transaction
+from django.db.models import F
 from django.core.exceptions import ValidationError
 from rest_framework import viewsets
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authtoken.models import Token
 from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
@@ -147,11 +146,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
                                                     is_active=question.is_active,
                                                     has_required_answer=question.has_required_answer,
                                                     is_common_for_all_tests=question.is_common_for_all_tests)
-            question_list_after = test_data.question_set.filter(index_number__gt=question.index_number)
+            test_data.question_set.filter(index_number__gt=question.index_number).update(index_number=F('index_number') + 1)
 
-            for quest in question_list_after:
-                quest.index_number = quest.index_number + 1
-                quest.save()
             copy_question.index_number = question.index_number + 1
             copy_question.save()
 
@@ -179,10 +175,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         if 'after' in self.request.query_params:
             after = self.request.query_params['after']
             test_data = get_object_or_404(TestData, pk=new_question.test.id)
-            question_list_after = test_data.question_set.filter(index_number__gt=after)
-            for question in question_list_after:
-                question.index_number = question.index_number + 1
-                question.save()
+            test_data.question_set.filter(index_number__gt=after).update(index_number=F('index_number') + 1)
             new_question.index_number = int(self.request.query_params['after']) + 1
             new_question.save()
         else:
@@ -194,10 +187,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         instance.delete()
         test_data = get_object_or_404(TestData, pk=instance.test.id)
         if instance.index_number:
-            question_list_after = test_data.question_set.filter(index_number__gt=instance.index_number)
-            for question in question_list_after:
-                question.index_number = question.index_number - 1
-                question.save()
+            test_data.question_set.filter(index_number__gt=instance.index_number).update(index_number=F('index_number') - 1)
 
 
 class AnswerSelectableViewSet(viewsets.ModelViewSet):
@@ -215,10 +205,7 @@ class AnswerSelectableViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         instance.delete()
         question = get_object_or_404(Question, pk=instance.question.id)
-        answer_list_after = question.answers.filter(index_number__gt=instance.index_number)
-        for answer in answer_list_after:
-            answer.index_number = answer.index_number - 1
-            answer.save()
+        question.answers.filter(index_number__gt=instance.index_number).update(index_number=F('index_number') - 1)
 
 
 class QuestionaryDataViewSet(viewsets.ModelViewSet):

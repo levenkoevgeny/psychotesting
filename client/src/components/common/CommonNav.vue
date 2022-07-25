@@ -1,5 +1,8 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light" v-if="isLogged">
+  <nav
+    class="navbar fixed-top navbar-expand-lg navbar-light bg-light"
+    v-if="isLogged"
+  >
     <div class="container-fluid">
       <a class="navbar-brand" href="/" v-if="user">
         <img

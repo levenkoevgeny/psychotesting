@@ -11,6 +11,8 @@ import { faCircleCheck } from "@fortawesome/free-regular-svg-icons"
 import { faEye } from "@fortawesome/free-regular-svg-icons"
 import { faPlusSquare } from "@fortawesome/free-solid-svg-icons"
 import { faSquarePollVertical } from "@fortawesome/free-solid-svg-icons"
+import Toast from "vue-toastification"
+import "vue-toastification/dist/index.css"
 
 library.add(faClone)
 library.add(faTrashCan)
@@ -23,5 +25,6 @@ library.add(faSquarePollVertical)
 createApp(App)
   .use(router)
   .use(store)
+  .use(Toast)
   .component("font-awesome-icon", FontAwesomeIcon)
   .mount("#app")

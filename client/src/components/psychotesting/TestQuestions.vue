@@ -1,7 +1,4 @@
 <template>
-  <div v-if="isError" class="alert alert-danger m-0 p-3" role="alert">
-    Ошибка загрузки данных!
-  </div>
   <div
     v-if="isLoading"
     class="d-flex justify-content-center align-items-center"
@@ -15,6 +12,7 @@
       Сохранено
       <font-awesome-icon icon="fa-regular fa-circle-check" />
     </h5>
+    <div style="height: 20px"></div>
     <div
       v-if="testData"
       class="my-3 p-3 rounded-3 component-white-background test-data-top-border"
@@ -93,6 +91,7 @@ import { testDataAPI } from "@/api/testDataApi"
 import { questionsAPI } from "@/api/questionsAPI"
 import useVuelidate from "@vuelidate/core"
 import { required, minLength, email } from "@vuelidate/validators"
+import { useToast } from "vue-toastification"
 
 import debounce from "lodash.debounce"
 
@@ -114,7 +113,10 @@ export default {
       isError: false,
     }
   },
-  setup: () => ({ v$: useVuelidate() }),
+  setup() {
+    const toast = useToast()
+    return { v$: useVuelidate(), toast }
+  },
   validations() {
     return {
       testData: {
@@ -187,6 +189,10 @@ export default {
         this.isTestDataError = true
       } finally {
         this.isSaving = false
+        this.toast.success("Сохранено!", {
+          timeout: 700,
+          closeOnClick: true,
+        })
       }
     }, 500),
     async addNewQuestion(afterNumber) {
@@ -234,6 +240,10 @@ export default {
         )
         this.arrangeIndexDelete(after)
         this.isSaving = false
+        this.toast.warning("Вопрос удален!", {
+          timeout: 700,
+          closeOnClick: true,
+        })
       }
     },
   },

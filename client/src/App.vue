@@ -6,6 +6,7 @@
 <script>
 import CommonNav from "@/components/common/CommonNav"
 import { mapState } from "vuex"
+
 export default {
   components: { CommonNav },
   computed: mapState({

@@ -147,6 +147,7 @@ import { mapGetters } from "vuex"
 import { answerAPI } from "@/api/answerAPI"
 
 import debounce from "lodash.debounce"
+import { useToast } from "vue-toastification"
 
 export default {
   name: "AnswerItem",
@@ -160,9 +161,17 @@ export default {
       questionTypes: questionTypes,
     }
   },
+  setup() {
+    const toast = useToast()
+    return { toast }
+  },
   methods: {
     updateAnswerData: debounce(async function () {
       await answerAPI.updateAnswerData(this.userToken, this.answer)
+      this.toast.success("Сохранено!", {
+        timeout: 700,
+        closeOnClick: true,
+      })
     }, 500),
   },
   computed: {

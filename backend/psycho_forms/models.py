@@ -54,7 +54,7 @@ class TestData(models.Model):
 class Question(models.Model):
     test = models.ForeignKey(TestData, on_delete=models.CASCADE, verbose_name="Тест")
     question_type = models.IntegerField(verbose_name="Тип вопроса", choices=QUESTION_TYPE_CHOICES, default=SINGLE)
-    question_text = models.CharField(verbose_name="Текст вопроса", max_length=255)
+    question_text = models.TextField(verbose_name="Текст вопроса")
     index_number = models.IntegerField(verbose_name="Порядковый номер вопроса", blank=True, null=True)
     data_created = models.DateTimeField(verbose_name="Дата и время создания", auto_now_add=True)
     is_active = models.BooleanField(verbose_name="Является активным", default=True)
@@ -72,7 +72,7 @@ class Question(models.Model):
 
 class AnswerSelectable(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers', verbose_name="Вопрос")
-    answer_text = models.CharField(verbose_name="Текст ответа", max_length=255)
+    answer_text = models.TextField(verbose_name="Текст ответа")
     has_extra_data = models.BooleanField(verbose_name="Имеет дополнительную информацию", default=False)
     index_number = models.IntegerField(verbose_name="Порядковый номер ответа", blank=True, null=True)
 

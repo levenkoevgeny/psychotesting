@@ -173,6 +173,8 @@ import { answerAPI } from "@/api/answerAPI"
 import questionTypes from "@/components/psychotesting/questionTypes"
 
 import debounce from "lodash.debounce"
+import { useToast } from "vue-toastification"
+import useVuelidate from "@vuelidate/core"
 
 export default {
   name: "QuestionItem",
@@ -184,6 +186,10 @@ export default {
     return {
       questionTypes: questionTypes,
     }
+  },
+  setup() {
+    const toast = useToast()
+    return { toast }
   },
   methods: {
     arrangeIndexAdd(after) {
@@ -216,6 +222,10 @@ export default {
       }
       await questionsAPI.updateQuestion(this.userToken, this.question)
       this.$emit("setSaving", false)
+      this.toast.success("Сохранено!", {
+        timeout: 700,
+        closeOnClick: true,
+      })
     }, 500),
     async deleteAnswer(answerId, after) {
       try {
@@ -227,6 +237,10 @@ export default {
         this.arrangeIndexDelete(after)
       } catch (e) {
       } finally {
+        this.toast.warning("Ответ удален!", {
+          timeout: 700,
+          closeOnClick: true,
+        })
       }
     },
     async addAnswer() {
@@ -259,14 +273,24 @@ export default {
     answersCount: function () {
       return this.question.answers.length > 1
     },
+    get_question_text() {
+      return this.question.question_text
+    },
+    get_question_type() {
+      return this.question.question_type
+    },
   },
 
   watch: {
-    question: {
+    get_question_text: {
       handler(newValue, oldValue) {
         this.updateQuestionData()
       },
-      deep: true,
+    },
+    get_question_type: {
+      handler(newValue, oldValue) {
+        this.updateQuestionData()
+      },
     },
   },
 }
