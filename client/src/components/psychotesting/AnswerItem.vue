@@ -6,7 +6,7 @@
           v-if="questionType === questionTypes['RADIO']"
           class="d-flex align-items-center"
         >
-          <input class="form-check-input" type="radio" />
+          <input class="form-check-input" type="radio" :value="answer.id" />
           <input
             type="text"
             class="form-control ms-2"

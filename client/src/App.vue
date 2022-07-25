@@ -1,5 +1,6 @@
 <template>
   <CommonNav v-if="isLogged" />
+  <div style="height: 70px" v-if="isLogged"></div>
   <router-view />
 </template>
 

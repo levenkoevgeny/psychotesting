@@ -1,23 +1,33 @@
 <template>
-
-  <div v-if="question.question_type === questionTypes['RADIO']" class="form-check my-2">
+  <div
+    v-if="question.question_type === questionTypes['RADIO']"
+    class="form-check my-2"
+  >
     <input
       class="form-check-input"
       type="radio"
       :name="'question_' + question.id + '_radio'"
       :value="answer.id"
       :required="question.has_required_answer"
-      @change="changeHandler"
+      @change="$emit('changeRadioValue', answer.id)"
     />
     <label class="form-check-label">
       {{ answer.answer_text }}
     </label>
-    <div style="display: block" v-if="answer.has_extra_data">
-      <input type="text" class="form-control" :disabled="radioStatus">
+    <div v-if="answer.id === radioValue">
+      <input
+        type="text"
+        class="form-control"
+        :name="'question_' + question.id + '_radio_extra_input'"
+        required
+      />
     </div>
   </div>
 
-  <div v-if="question.question_type === questionTypes['CHECKBOX']" class="form-check my-2">
+  <div
+    v-if="question.question_type === questionTypes['CHECKBOX']"
+    class="form-check my-2"
+  >
     <input
       class="form-check-input"
       type="checkbox"
@@ -28,13 +38,21 @@
     <label class="form-check-label">
       {{ answer.answer_text }}
     </label>
-    <div v-bind:class="{checkbox_display_none: checkBoxStatus}" v-if="answer.has_extra_data">
-      <input type="text" class="form-control my-2" :disabled="checkBoxStatus"
-             :name="'question_' + question.id + '_checkbox_' + index + '_extra_input'" :required="!checkBoxStatus">
+    <div
+      v-bind:class="{ checkbox_display_none: checkBoxStatus }"
+      v-if="answer.has_extra_data"
+    >
+      <input
+        type="text"
+        class="form-control my-2"
+        :disabled="checkBoxStatus"
+        :name="
+          'question_' + question.id + '_checkbox_' + index + '_extra_input'
+        "
+        :required="!checkBoxStatus"
+      />
     </div>
   </div>
-
-
 </template>
 
 <script>
@@ -45,13 +63,14 @@ export default {
   props: {
     answer: { type: Object, required: true },
     question: { type: Object, required: true },
-    index: { type: Number, required: true }
+    index: { type: Number, required: true },
+    radioValue: { type: Number, required: true },
   },
   data() {
     return {
       questionTypes: questionTypes,
       radioStatus: false,
-      checkBoxStatus: true
+      checkBoxStatus: true,
     }
   },
   methods: {
@@ -61,9 +80,9 @@ export default {
       } else {
         this.checkBoxStatus = true
       }
-    }
+    },
   },
-  computed: {}
+  computed: {},
 }
 </script>
 

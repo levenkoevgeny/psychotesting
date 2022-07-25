@@ -2,17 +2,10 @@
   <div
     v-if="isLoading"
     class="d-flex justify-content-center align-items-center"
-    style="height: 80vh"
   >
     <Spinner />
   </div>
   <div v-else class="container">
-    <h5 v-if="isSaving" class="d-inline-block mt-3">Сохранение...</h5>
-    <h5 v-else class="d-inline-block mt-3">
-      Сохранено
-      <font-awesome-icon icon="fa-regular fa-circle-check" />
-    </h5>
-    <div style="height: 20px"></div>
     <div
       v-if="testData"
       class="my-3 p-3 rounded-3 component-white-background test-data-top-border"

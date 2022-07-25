@@ -12,7 +12,13 @@
         question.question_type === questionTypes['CHECKBOX']
       "
     >
-      <AnswerItemRunning :answer="answer" :question="question" :index="index" />
+      <AnswerItemRunning
+        :answer="answer"
+        :question="question"
+        :index="index"
+        :radioValue="radioValue"
+        @changeRadioValue="changeRadioValueHandler"
+      />
     </div>
 
     <div v-if="question.question_type === questionTypes['SELECT']">
@@ -64,7 +70,13 @@ export default {
       questionTypes: questionTypes,
       isLoading: false,
       isError: false,
+      radioValue: null,
     }
+  },
+  methods: {
+    changeRadioValueHandler(newValue) {
+      this.radioValue = newValue
+    },
   },
 }
 </script>
