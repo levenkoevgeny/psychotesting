@@ -1,6 +1,6 @@
 <template>
   <div v-if="isError" class="alert alert-danger m-0 p-3" role="alert">
-    Ошибка загрузки данных!
+    Что-то пошло не так!
   </div>
   <div class="container">
     <div
@@ -17,8 +17,8 @@
       <Spinner />
     </div>
     <div v-else class="mt-3">
-      <div v-if="testList.length > 0">
-        <div v-for="test in testList" :key="test.id">
+      <div v-if="getTestListLength > 0">
+        <div v-for="test in sortedTests" :key="test.id">
           <TestItem
             :testData="test"
             @deleteTest="deleteTestHandler"
@@ -44,6 +44,7 @@ import Spinner from "@/components/common/Spinner"
 import TestItem from "@/components/psychotesting/TestItem"
 import { mapGetters } from "vuex"
 import { testDataAPI } from "@/api/testDataApi"
+import { useToast } from "vue-toastification"
 
 export default {
   name: "TestList",
@@ -57,6 +58,10 @@ export default {
       isLoading: true,
       isError: false,
     }
+  },
+  setup() {
+    const toast = useToast()
+    return { toast }
   },
   async created() {
     try {
@@ -76,41 +81,83 @@ export default {
       userData: "auth/getUser",
       userToken: "auth/getToken",
     }),
+    getTestListLength: function () {
+      return this.testList.length
+    },
+    sortedTests: function () {
+      return this.testList.sort(function (a, b) {
+        if (a.index_number < b.index_number) {
+          return -1
+        }
+        if (a.index_number > b.index_number) {
+          return 1
+        }
+        return 0
+      })
+    },
   },
   methods: {
-    async deleteTestHandler(testId) {
+    arrangeIndexAdd(after) {
+      this.testList.map((test) => {
+        if (parseInt(test.index_number) > parseInt(after)) {
+          test.index_number = test.index_number + 1
+        }
+      })
+    },
+    arrangeIndexDelete(after) {
+      this.testList.map((test) => {
+        if (parseInt(test.index_number) > parseInt(after)) {
+          test.index_number = test.index_number - 1
+        }
+      })
+    },
+    async addNewTestHandler() {
+      this.isLoading = true
       try {
-        this.isLoading = true
-        await testDataAPI.deleteTestData(this.userToken, testId)
-        this.testList = this.testList.filter((test) => test.id !== testId)
+        const response = await testDataAPI.addNewTest(
+          this.userToken,
+          {
+            test_name: "Новый тест",
+            extra_data: "описание",
+            is_active: false,
+            organization: this.userData.id,
+          },
+          this.getTestListLength
+        )
+        const newTest = await response.data
+        await this.$router.push({
+          name: "test_questions",
+          params: { id: newTest.id },
+        })
       } catch (e) {
+        this.isError = true
+      }
+    },
+    async makeTestCopy(testId, afterNumber) {
+      this.isLoading = true
+      try {
+        const response = await testDataAPI.makeTestCopy(this.userToken, testId)
+        this.arrangeIndexAdd(afterNumber)
+        this.testList.push(response.data)
+      } catch (error) {
         this.isError = true
       } finally {
         this.isLoading = false
       }
     },
-    async addNewTestHandler() {
+    async deleteTestHandler(testId, afterNumber) {
       this.isLoading = true
-      const response = await testDataAPI.addNewTest(this.userToken, {
-        test_name: "Новый тест",
-        extra_data: "описание",
-        is_active: false,
-        organization: this.userData.id,
-      })
-      const newTest = await response.data
-      this.isLoading = false
-      await this.$router.push({
-        name: "test_questions",
-        params: { id: newTest.id },
-      })
-    },
-    async makeTestCopy(testId) {
       try {
-        this.isLoading = true
-        const response = await testDataAPI.makeTestCopy(this.userToken, testId)
-        this.testList.push(response.data)
-      } catch (error) {
+        await testDataAPI.deleteTestData(this.userToken, testId)
+        this.testList = this.testList.filter((test) => test.id !== testId)
+        this.arrangeIndexDelete(afterNumber)
+      } catch (e) {
+        this.isError = true
       } finally {
+        this.toast.warning("Тест удален!", {
+          timeout: 700,
+          closeOnClick: true,
+        })
         this.isLoading = false
       }
     },

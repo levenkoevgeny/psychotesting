@@ -22,9 +22,6 @@ axios.interceptors.response.use(
       store.dispatch("auth/actionRemoveLogIn")
       router.push({ name: "login" })
     }
-    if (error.response.status === 404) {
-      router.push({ name: "NotFound" })
-    }
     if (error.response.status === 500) {
       router.push({ name: "error" })
     }

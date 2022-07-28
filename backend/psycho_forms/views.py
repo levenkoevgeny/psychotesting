@@ -42,30 +42,49 @@ class TestDataViewSet(viewsets.ModelViewSet):
     }
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    def perform_create(self, serializer):
+        new_test = serializer.save()
+        if 'after' in self.request.query_params:
+            new_test.index_number = int(self.request.query_params['after']) + 1
+            new_test.save()
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        organization = get_object_or_404(Organization, pk=instance.organization.id)
+        if instance.index_number:
+            organization.testdata_set.filter(index_number__gt=instance.index_number).update(
+                index_number=F('index_number') - 1)
+
     @action(detail=True, methods=['post'])
+    @transaction.atomic
     def make_copy(self, request, pk=None):
         test_data = get_object_or_404(TestData, pk=pk)
         organization = get_object_or_404(Organization, pk=test_data.organization.id)
-        copy_test = TestData.objects.create(organization=organization,
-                                            test_name=test_data.test_name,
-                                            extra_data=test_data.extra_data,
-                                            is_active=test_data.is_active
-                                            )
-        for question in test_data.question_set.all():
-            copy_question = Question.objects.create(test=copy_test,
-                                                    question_type=question.question_type,
-                                                    question_text=question.question_text,
-                                                    index_number=question.index_number,
-                                                    is_active=question.is_active,
-                                                    has_required_answer=question.has_required_answer,
-                                                    is_common_for_all_tests=question.is_common_for_all_tests
-                                                    )
-            for answer in question.answers.all():
-                AnswerSelectable.objects.create(question=copy_question,
-                                                answer_text=answer.answer_text,
-                                                has_extra_data=answer.has_extra_data,
-                                                index_number=answer.index_number)
-
+        organization.testdata_set.filter(index_number__gt=test_data.index_number).update(
+            index_number=F('index_number') + 1)
+        try:
+            copy_test = TestData.objects.create(organization=organization,
+                                                test_name=test_data.test_name + ' (копия)',
+                                                extra_data=test_data.extra_data,
+                                                is_active=test_data.is_active,
+                                                index_number=test_data.index_number + 1
+                                                )
+            for question in test_data.question_set.all():
+                copy_question = Question.objects.create(test=copy_test,
+                                                        question_type=question.question_type,
+                                                        question_text=question.question_text,
+                                                        index_number=question.index_number,
+                                                        is_active=question.is_active,
+                                                        has_required_answer=question.has_required_answer,
+                                                        is_common_for_all_tests=question.is_common_for_all_tests
+                                                        )
+                for answer in question.answers.all():
+                    AnswerSelectable.objects.create(question=copy_question,
+                                                    answer_text=answer.answer_text,
+                                                    has_extra_data=answer.has_extra_data,
+                                                    index_number=answer.index_number)
+        except ValidationError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(TestDataSerializer(copy_test).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'])
@@ -136,50 +155,42 @@ class QuestionViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     @action(detail=True, methods=['post'])
+    @transaction.atomic
     def make_copy(self, request, pk=None):
+        question = get_object_or_404(Question, pk=pk)
+        test_data = get_object_or_404(TestData, pk=question.test.id)
+        test_data.question_set.filter(index_number__gt=question.index_number).update(
+            index_number=F('index_number') + 1)
         try:
-            question = get_object_or_404(Question, pk=pk)
-            test_data = get_object_or_404(TestData, pk=question.test.id)
             copy_question = Question.objects.create(test=test_data,
                                                     question_type=question.question_type,
-                                                    question_text=question.question_text,
+                                                    question_text=question.question_text + ' (копия)',
                                                     is_active=question.is_active,
                                                     has_required_answer=question.has_required_answer,
-                                                    is_common_for_all_tests=question.is_common_for_all_tests)
-            test_data.question_set.filter(index_number__gt=question.index_number).update(index_number=F('index_number') + 1)
-
-            copy_question.index_number = question.index_number + 1
-            copy_question.save()
-
+                                                    is_common_for_all_tests=question.is_common_for_all_tests,
+                                                    index_number=question.index_number + 1
+                                                    )
             for answer in question.answers.all():
                 AnswerSelectable.objects.create(question=copy_question,
                                                 answer_text=answer.answer_text,
                                                 has_extra_data=answer.has_extra_data,
                                                 index_number=answer.index_number)
-
-            return Response(QuestionSerializer(copy_question).data, status=status.HTTP_201_CREATED)
-        except Exception:
+        except ValidationError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(QuestionSerializer(copy_question).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'])
     def delete_all_answers(self, request, pk=None):
-        try:
-            question = get_object_or_404(Question, pk=pk)
-            question.answers.all().delete()
-            return Response(QuestionSerializer(question).data, status=status.HTTP_200_OK)
-        except Exception:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        question = get_object_or_404(Question, pk=pk)
+        question.answers.all().delete()
+        return Response(QuestionSerializer(question).data, status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
         new_question = serializer.save()
         if 'after' in self.request.query_params:
-            after = self.request.query_params['after']
             test_data = get_object_or_404(TestData, pk=new_question.test.id)
-            test_data.question_set.filter(index_number__gt=after).update(index_number=F('index_number') + 1)
+            test_data.question_set.filter(index_number__gt=int(self.request.query_params['after'])).update(index_number=F('index_number') + 1)
             new_question.index_number = int(self.request.query_params['after']) + 1
-            new_question.save()
-        else:
-            new_question.index_number = 1
             new_question.save()
         AnswerSelectable.objects.create(question=new_question, answer_text='Новый ответ', index_number=1)
 
@@ -187,7 +198,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
         instance.delete()
         test_data = get_object_or_404(TestData, pk=instance.test.id)
         if instance.index_number:
-            test_data.question_set.filter(index_number__gt=instance.index_number).update(index_number=F('index_number') - 1)
+            test_data.question_set.filter(index_number__gt=instance.index_number).update(
+                index_number=F('index_number') - 1)
 
 
 class AnswerSelectableViewSet(viewsets.ModelViewSet):

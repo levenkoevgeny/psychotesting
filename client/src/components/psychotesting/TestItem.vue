@@ -76,7 +76,7 @@
           type="button"
           class="btn btn-light rounded-circle link-secondary mx-2 fs-5"
           title="Создать копию"
-          @click="$emit('makeTestCopy', testData.id)"
+          @click="$emit('makeTestCopy', testData.id, testData.index_number)"
         >
           <font-awesome-icon icon="fa-solid fa-clone" />
         </button>
@@ -84,7 +84,7 @@
           type="button"
           class="btn btn-light rounded-circle link-secondary mx-2 fs-5"
           title="Удалить"
-          @click="$emit('deleteTest', testData.id)"
+          @click="$emit('deleteTest', testData.id, testData.index_number)"
         >
           <font-awesome-icon icon="fa-solid fa-trash-can" />
         </button>
@@ -118,9 +118,6 @@ export default {
       const IsoDate = new Date(testDateTime)
       return IsoDate.toLocaleDateString() + " " + IsoDate.toLocaleTimeString()
     },
-    async updateTestData() {
-      await testDataAPI.updateTestData(this.userToken, this.testData)
-    },
     changeRoute(testId) {
       let route = this.$router.resolve({
         name: "test_running",
@@ -134,14 +131,6 @@ export default {
       userData: "auth/getUser",
       userToken: "auth/getToken",
     }),
-  },
-  watch: {
-    testData: {
-      handler(newValue, oldValue) {
-        this.updateTestData()
-      },
-      deep: true,
-    },
   },
 }
 </script>

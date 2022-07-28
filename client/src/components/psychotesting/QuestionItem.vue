@@ -11,6 +11,15 @@
             class="form-control"
             placeholder="Текст вопроса"
           />
+          <div
+            :class="{
+              invalid: v$.question.question_text.$silentErrors.length,
+              'visually-hidden':
+                !v$.question.question_text.$silentErrors.length,
+            }"
+          >
+            Это поле не может быть пустым!
+          </div>
         </div>
       </div>
       <div class="col-md-6">
@@ -137,7 +146,9 @@
           type="button"
           class="btn btn-light rounded-circle link-secondary mx-2 fs-5"
           title="Удалить"
-          @click="$emit('deleteQuestion', question.id, question.index_number)"
+          @click="
+            deleteQuestionHandler($event, question.id, question.index_number)
+          "
         >
           <font-awesome-icon icon="fa-regular fa-trash-can" />
         </button>
@@ -175,6 +186,7 @@ import questionTypes from "@/components/psychotesting/questionTypes"
 import debounce from "lodash.debounce"
 import { useToast } from "vue-toastification"
 import useVuelidate from "@vuelidate/core"
+import { required } from "@vuelidate/validators"
 
 export default {
   name: "QuestionItem",
@@ -189,7 +201,14 @@ export default {
   },
   setup() {
     const toast = useToast()
-    return { toast }
+    return { v$: useVuelidate(), toast }
+  },
+  validations() {
+    return {
+      question: {
+        question_text: { required },
+      },
+    }
   },
   methods: {
     arrangeIndexAdd(after) {
@@ -207,41 +226,22 @@ export default {
       })
     },
     updateQuestionData: debounce(async function () {
-      this.$emit("setSaving", true)
-      if (
-        [this.questionTypes["TEXT"], this.questionTypes["DATE"]].includes(
-          parseInt(this.question.question_type)
-        )
-      ) {
-        // const response = await questionsAPI.deleteQuestionAnswers(
-        //   this.userToken,
-        //   this.question.id
-        // )
-        // console.log("sdfsdf")
-        // this.$emit("updateQuestions", response.data)
-      }
-      await questionsAPI.updateQuestion(this.userToken, this.question)
-      this.$emit("setSaving", false)
-      this.toast.success("Сохранено!", {
-        timeout: 700,
-        closeOnClick: true,
-      })
-    }, 500),
-    async deleteAnswer(answerId, after) {
       try {
-        await answerAPI.deleteAnswer(this.userToken, answerId)
-        this.question.answers = this.question.answers.filter(
-          (answer) => answer.id !== answerId
+        this.$emit("setIsError", false)
+        const response = await questionsAPI.updateQuestion(
+          this.userToken,
+          this.question
         )
-        this.isSaving = false
-        this.arrangeIndexDelete(after)
+        if (response.status >= 200 && response.status < 300) {
+          this.$emit("sendSuccessToast")
+        } else throw new Error()
       } catch (e) {
-      } finally {
-        this.toast.warning("Ответ удален!", {
-          timeout: 700,
-          closeOnClick: true,
-        })
+        this.$emit("setIsError", true)
       }
+    }, 500),
+    async deleteQuestionHandler(event, question_id, question_index_number) {
+      event.target.disabled = true
+      this.$emit("deleteQuestion", question_id, question_index_number)
     },
     async addAnswer() {
       try {
@@ -249,9 +249,25 @@ export default {
           question: this.question.id,
           answer_text: "Новый ответ",
         })
-        this.question.answers.push(response.data)
+        if (response.status >= 200 && response.status < 300) {
+          this.question.answers.push(response.data)
+        }
       } catch (error) {
-      } finally {
+        this.$emit("setIsError", true)
+      }
+    },
+    async deleteAnswer(answerId, after) {
+      try {
+        const response = await answerAPI.deleteAnswer(this.userToken, answerId)
+        if (response.status >= 200 && response.status < 300) {
+          this.question.answers = this.question.answers.filter(
+            (answer) => answer.id !== answerId
+          )
+          this.arrangeIndexDelete(after)
+          this.$emit("sendWarningToast", "Ответ удален!")
+        } else throw new Error("")
+      } catch (e) {
+        this.$emit("setIsError", true)
       }
     },
   },
@@ -284,7 +300,9 @@ export default {
   watch: {
     get_question_text: {
       handler(newValue, oldValue) {
-        this.updateQuestionData()
+        if (!this.v$.$invalid) {
+          this.updateQuestionData()
+        }
       },
     },
     get_question_type: {
@@ -296,4 +314,14 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.invalid {
+  color: #dc3545;
+}
+.display-visible {
+  display: none;
+}
+.display-visible {
+  display: block;
+}
+</style>

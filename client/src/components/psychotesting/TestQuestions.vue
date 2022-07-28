@@ -1,4 +1,7 @@
 <template>
+  <div v-if="isError" class="alert alert-danger m-0 p-3" role="alert">
+    Что-то пошло не так!
+  </div>
   <div
     v-if="isLoading"
     class="d-flex justify-content-center align-items-center"
@@ -27,6 +30,7 @@
         <input
           type="text"
           class="form-control fs-2"
+          placeholder="Название теста"
           :class="{
             'border-danger': v$.testData.test_name.$silentErrors.length,
           }"
@@ -47,6 +51,7 @@
         <textarea
           v-model="testData.extra_data"
           class="form-control fs-6"
+          placeholder="Описание теста"
           rows="1"
           >{{ testData.extra_data }}
         </textarea>
@@ -55,6 +60,7 @@
         <textarea
           v-model="testData.introduction"
           class="form-control fs-6"
+          placeholder="Вступительный текст"
           rows="5"
           >{{ testData.introduction }}
         </textarea>
@@ -68,7 +74,10 @@
             @deleteQuestion="deleteQuestionHandler"
             @addNextQuestion="addNewQuestion"
             @copyQuestion="makeQuestionCopy"
-            @setSaving="setSavingStatus"
+            @setIsLoading="setIsLoading"
+            @setIsError="setIsError"
+            @sendSuccessToast="sendSuccessToast"
+            @sendWarningToast="sendWarningToast"
           />
         </div>
       </div>
@@ -83,7 +92,7 @@ import { mapGetters } from "vuex"
 import { testDataAPI } from "@/api/testDataApi"
 import { questionsAPI } from "@/api/questionsAPI"
 import useVuelidate from "@vuelidate/core"
-import { required, minLength, email } from "@vuelidate/validators"
+import { required } from "@vuelidate/validators"
 import { useToast } from "vue-toastification"
 
 import debounce from "lodash.debounce"
@@ -94,15 +103,10 @@ export default {
   data() {
     return {
       testData: {
-        test_name: "",
+        test_name: null,
       },
-      name: "",
       questionList: [],
       isLoading: true,
-      isSaving: false,
-      isTestDataError: false,
-      isQuestionsError: false,
-      isAnswersError: false,
       isError: false,
     }
   },
@@ -147,7 +151,6 @@ export default {
           this.$route.params.id
         )
         this.questionList = await response.data
-        this.isQuestionListLoading = false
       }
     } catch (e) {
       this.isError = true
@@ -170,81 +173,101 @@ export default {
         }
       })
     },
-    setSavingStatus(status) {
-      this.isSaving = status
+    setIsLoading(value) {
+      this.isLoading = value
     },
-    updateTestData: debounce(async function () {
-      this.isTestDataError = false
-      this.isSaving = true
-      try {
-        await testDataAPI.updateTestData(this.userToken, this.testData)
-      } catch (error) {
-        this.isTestDataError = true
-      } finally {
-        this.isSaving = false
-        this.toast.success("Сохранено!", {
-          timeout: 700,
-          closeOnClick: true,
-        })
-      }
-    }, 500),
+    setIsError(value) {
+      this.isError = value
+    },
+    sendSuccessToast() {
+      this.toast.success("Сохранено!", {
+        timeout: 700,
+        closeOnClick: true,
+      })
+    },
+    sendWarningToast(warningText) {
+      this.toast.warning(warningText, {
+        timeout: 700,
+        closeOnClick: true,
+      })
+    },
     async addNewQuestion(afterNumber) {
-      this.isSaving = true
-      const response = await questionsAPI.addNewQuestion(
-        this.userToken,
-        {
-          test: this.testData.id,
-          question_text: "Новый вопрос",
-          question_type: 1,
-          index_number: 1,
-          is_active: true,
-          has_required_answer: false,
-          is_common_for_all_tests: false,
-        },
-        afterNumber
-      )
-      this.arrangeIndexAdd(afterNumber)
-      this.questionList.push(response.data)
-      this.isSaving = false
+      try {
+        const response = await questionsAPI.addNewQuestion(
+          this.userToken,
+          {
+            test: this.testData.id,
+            question_text: "Новый вопрос",
+            question_type: 1,
+            index_number: 1,
+            is_active: true,
+            has_required_answer: false,
+            is_common_for_all_tests: false,
+          },
+          afterNumber
+        )
+        if (response.status >= 200 && response.status < 300) {
+          this.arrangeIndexAdd(afterNumber)
+          this.questionList.push(response.data)
+        } else throw new Error("")
+      } catch (e) {
+        this.isError = true
+      }
     },
     async makeQuestionCopy(questionId, afterNumber) {
-      this.isSaving = true
       try {
         const response = await questionsAPI.makeQuestionCopy(
           this.userToken,
           questionId
         )
-        this.arrangeIndexAdd(afterNumber)
-        this.questionList.push(response.data)
+        if (response.status >= 200 && response.status < 300) {
+          this.arrangeIndexAdd(afterNumber)
+          this.questionList.push(response.data)
+        } else throw new Error("")
       } catch (error) {
-        this.isQuestionsError = true
-      } finally {
-        this.isSaving = false
+        this.isError = true
       }
     },
-    async deleteQuestionHandler(questionId, after) {
-      this.isSaving = true
+    updateTestData: debounce(async function () {
+      this.isError = false
       try {
-        await questionsAPI.deleteQuestion(this.userToken, questionId)
-      } catch (e) {
-      } finally {
-        this.questionList = this.questionList.filter(
-          (question) => question.id !== questionId
+        const response = await testDataAPI.updateTestData(
+          this.userToken,
+          this.testData
         )
-        this.arrangeIndexDelete(after)
-        this.isSaving = false
-        this.toast.warning("Вопрос удален!", {
-          timeout: 700,
-          closeOnClick: true,
-        })
+        if (response.status >= 200 && response.status < 300) {
+          this.sendSuccessToast()
+        } else throw new Error("")
+      } catch (error) {
+        this.isError = true
+      }
+    }, 500),
+    async deleteQuestionHandler(questionId, afterNumber) {
+      try {
+        const response = await questionsAPI.deleteQuestion(
+          this.userToken,
+          questionId
+        )
+        if (response.status >= 200 && response.status < 300) {
+          this.questionList = this.questionList.filter(
+            (question) => question.id !== questionId
+          )
+          this.arrangeIndexDelete(afterNumber)
+          this.sendWarningToast("Вопрос удален!")
+        } else throw new Error("")
+      } catch (e) {
+        this.isError = true
+      } finally {
       }
     },
   },
   watch: {
     testData: {
       handler(newValue, oldValue) {
-        if (!this.v$.$invalid) {
-          this.updateTestData()
+        if (oldValue["test_name"] != null) {
+          if (!this.v$.$invalid) {
+            this.updateTestData()
+          }
         }
       },
       deep: true,

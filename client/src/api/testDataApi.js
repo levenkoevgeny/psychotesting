@@ -46,9 +46,9 @@ export const testDataAPI = {
     )
   },
 
-  async addNewTest(token, testData) {
+  async addNewTest(token, testData, afterNumber) {
     return axios.post(
-      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-data/`,
+      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-data/?after=${afterNumber}`,
       testData,
       authHeaders(token)
     )
