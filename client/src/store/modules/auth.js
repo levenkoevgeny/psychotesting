@@ -56,6 +56,21 @@ const actions = {
     }
   },
 
+  async actionRegistration({ commit }, payload) {
+    let { username, password } = payload
+    const response = await api.registration(username, password)
+    if (response.status >= 200 && response.status < 300) {
+      return response
+    } else if (response.status === 400) {
+      console.log("jhjh")
+    }
+
+    // } catch (error) {
+    //   console.log("jhjkkkkkh")
+    //   console.log(error)
+    // }
+  },
+
   async actionCheckLoggedIn({ state, commit, dispatch }) {
     if (!state.isLoggedIn) {
       let token = state.token

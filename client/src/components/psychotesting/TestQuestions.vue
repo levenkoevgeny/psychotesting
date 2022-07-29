@@ -94,7 +94,7 @@ import { questionsAPI } from "@/api/questionsAPI"
 import useVuelidate from "@vuelidate/core"
 import { required } from "@vuelidate/validators"
 import { useToast } from "vue-toastification"
-
+import { toastOptions } from "@/utils"
 import debounce from "lodash.debounce"
 
 export default {
@@ -186,10 +186,7 @@ export default {
       })
     },
     sendWarningToast(warningText) {
-      this.toast.warning(warningText, {
-        timeout: 700,
-        closeOnClick: true,
-      })
+      this.toast.warning(warningText, toastOptions)
     },
     async addNewQuestion(afterNumber) {
       try {
@@ -230,17 +227,20 @@ export default {
     },
     updateTestData: debounce(async function () {
       this.isError = false
-      try {
-        const response = await testDataAPI.updateTestData(
-          this.userToken,
-          this.testData
-        )
-        if (response.status >= 200 && response.status < 300) {
-          this.sendSuccessToast()
-        } else throw new Error("")
-      } catch (error) {
-        this.isError = true
+      if (!this.v$.$invalid) {
+        try {
+          const response = await testDataAPI.updateTestData(
+            this.userToken,
+            this.testData
+          )
+          if (response.status >= 200 && response.status < 300) {
+            this.sendSuccessToast()
+          } else throw new Error("")
+        } catch (error) {
+          this.isError = true
+        }
       }
+
     }, 500),
     async deleteQuestionHandler(questionId, afterNumber) {
       try {
@@ -265,9 +265,7 @@ export default {
     testData: {
       handler(newValue, oldValue) {
         if (oldValue["test_name"] != null) {
-          if (!this.v$.$invalid) {
             this.updateTestData()
-          }
         }
       },
       deep: true,

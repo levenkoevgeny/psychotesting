@@ -3,9 +3,35 @@
     class="d-flex justify-content-center align-items-center container-fluid"
     style="background-color: #f5f5f5; height: 100vh"
   >
+
     <div class="fixed-top m-3"><a href="/login">Вход в систему</a></div>
 
     <main class="form-signin">
+      <div class="alert alert-danger" v-if="v$.$errors.length > 0">
+        <h5 v-if="v$.auth_data.username.$error">Логин:</h5>
+        <p
+          v-for="error of v$.auth_data.username.$errors"
+          :key="error.$uid"
+        >
+          {{ error.$message }}
+        </p>
+        <h5 v-if="v$.auth_data.password.$error">Пароль:</h5>
+        <p
+          v-for="error of v$.auth_data.password.$errors"
+          :key="error.$uid"
+        >
+          {{ error.$message }}
+        </p>
+        <h5 v-if="v$.auth_data.confirmPassword.$error">Пароль (повтор):</h5>
+        <p
+          v-for="error of v$.auth_data.confirmPassword.$errors"
+          :key="error.$uid"
+        >
+          {{ error.$message }}
+        </p>
+      </div>
+
+
       <form @submit="submitHandler">
         <h1 class="h3 mb-3 fw-normal">Регистрация</h1>
 
@@ -15,6 +41,7 @@
             class="form-control"
             placeholder="name@example.com"
             v-model="auth_data.username"
+            required
           />
           <label>Логин</label>
         </div>
@@ -24,6 +51,8 @@
             class="form-control"
             placeholder="Password"
             v-model="auth_data.password"
+            required
+            pattern="(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{6,}"
           />
           <label>Пароль</label>
         </div>
@@ -32,11 +61,13 @@
             type="password"
             class="form-control"
             placeholder="Password"
-            v-model="auth_data.password"
+            v-model="auth_data.confirmPassword"
+            required
+            pattern="(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{6,}"
           />
           <label>Повторите пароль</label>
         </div>
-        <button class="w-100 btn btn-lg btn-primary" type="submit">
+        <button class="w-100 btn btn-lg btn-primary" type="submit" :disabled="v$.$invalid">
           Регистрация
         </button>
         <br />
@@ -48,16 +79,61 @@
 </template>
 
 <script>
+import useVuelidate from "@vuelidate/core"
+import { required, helpers, sameAs } from "@vuelidate/validators"
+
 export default {
   name: "RegistrationView",
   data() {
     return {
       auth_data: {
-        username: "",
-        password: "",
-      },
+        username: "levenko",
+        password: "Minsk1986Minsk!",
+        confirmPassword: "Minsk1986Minsk!"
+      }
     }
   },
+  setup() {
+    return { v$: useVuelidate() }
+  },
+  validations() {
+    const passwordRegex = helpers.regex(/(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{6,}/)
+    const same = sameAs(this.auth_data.password)
+
+
+    return {
+      auth_data: {
+        username: {
+          required: helpers.withMessage("Поле не может быть пустым!", required),
+          $autoDirty: true
+        },
+        password: {
+          required: helpers.withMessage("Поле не может быть пустым!", required),
+          passwordRegex: helpers.withMessage("Пароль не удовлетворяет минимальным требованиям безопасности!(пароль должен состоять из не менее 6 символов в которых должны присутствовать строчные, прописные буквы, цифры, спецсимволы)", passwordRegex),
+          $autoDirty: true
+        },
+        confirmPassword: {
+          $autoDirty: true,
+          same: helpers.withMessage("Введенные пароли не совпадают!", same)
+        }
+      }
+    }
+  },
+  methods: {
+    submitHandler(e) {
+      e.preventDefault()
+      e.stopPropagation()
+      if (!this.v$.$invalid) {
+        this.$store
+          .dispatch("auth/actionRegistration", { ...this.auth_data })
+          .then((response) => {
+            // console.log('resp', response.data())
+            // this.$router.replace(this.$route.query.redirect || "/")
+          })
+
+      }
+    }
+  }
 }
 </script>
 

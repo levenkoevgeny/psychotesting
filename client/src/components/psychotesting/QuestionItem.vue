@@ -192,11 +192,11 @@ export default {
   name: "QuestionItem",
   components: { AnswerItem },
   props: {
-    question: { type: Object, required: true },
+    question: { type: Object, required: true }
   },
   data() {
     return {
-      questionTypes: questionTypes,
+      questionTypes: questionTypes
     }
   },
   setup() {
@@ -206,8 +206,8 @@ export default {
   validations() {
     return {
       question: {
-        question_text: { required },
-      },
+        question_text: { required }
+      }
     }
   },
   methods: {
@@ -225,18 +225,20 @@ export default {
         }
       })
     },
-    updateQuestionData: debounce(async function () {
-      try {
-        this.$emit("setIsError", false)
-        const response = await questionsAPI.updateQuestion(
-          this.userToken,
-          this.question
-        )
-        if (response.status >= 200 && response.status < 300) {
-          this.$emit("sendSuccessToast")
-        } else throw new Error()
-      } catch (e) {
-        this.$emit("setIsError", true)
+    updateQuestionData: debounce(async function() {
+      this.$emit("setIsError", false)
+      if (!this.v$.$invalid) {
+        try {
+          const response = await questionsAPI.updateQuestion(
+            this.userToken,
+            this.question
+          )
+          if (response.status >= 200 && response.status < 300) {
+            this.$emit("sendSuccessToast")
+          } else throw new Error()
+        } catch (e) {
+          this.$emit("setIsError", true)
+        }
       }
     }, 500),
     async deleteQuestionHandler(event, question_id, question_index_number) {
@@ -247,7 +249,7 @@ export default {
       try {
         const response = await answerAPI.addNewAnswer(this.userToken, {
           question: this.question.id,
-          answer_text: "Новый ответ",
+          answer_text: "Новый ответ"
         })
         if (response.status >= 200 && response.status < 300) {
           this.question.answers.push(response.data)
@@ -264,19 +266,19 @@ export default {
             (answer) => answer.id !== answerId
           )
           this.arrangeIndexDelete(after)
-          this.$emit("sendWarningToast", "Ответ удален!")
+          this.$emit("sendWarningToast", `${answerId}Ответ удален!`)
         } else throw new Error("")
       } catch (e) {
         this.$emit("setIsError", true)
       }
-    },
+    }
   },
   computed: {
     ...mapGetters({
-      userToken: "auth/getToken",
+      userToken: "auth/getToken"
     }),
-    sortedAnswers: function () {
-      return this.question.answers.sort(function (a, b) {
+    sortedAnswers: function() {
+      return this.question.answers.sort(function(a, b) {
         if (a.index_number < b.index_number) {
           return -1
         }
@@ -286,31 +288,28 @@ export default {
         return 0
       })
     },
-    answersCount: function () {
+    answersCount: function() {
       return this.question.answers.length > 1
     },
-    get_question_text() {
+    get_question_text: function() {
       return this.question.question_text
     },
-    get_question_type() {
+    get_question_type: function() {
       return this.question.question_type
-    },
+    }
   },
-
   watch: {
     get_question_text: {
       handler(newValue, oldValue) {
-        if (!this.v$.$invalid) {
-          this.updateQuestionData()
-        }
-      },
+        this.updateQuestionData()
+      }
     },
     get_question_type: {
       handler(newValue, oldValue) {
         this.updateQuestionData()
-      },
-    },
-  },
+      }
+    }
+  }
 }
 </script>
 
@@ -318,9 +317,11 @@ export default {
 .invalid {
   color: #dc3545;
 }
+
 .display-visible {
   display: none;
 }
+
 .display-visible {
   display: block;
 }

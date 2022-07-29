@@ -15,6 +15,7 @@
             class="form-control"
             placeholder="name@example.com"
             v-model="auth_data.username"
+            required
           />
           <label>Логин</label>
         </div>
@@ -24,6 +25,7 @@
             class="form-control"
             placeholder="Password"
             v-model="auth_data.password"
+            required
           />
           <label>Пароль</label>
         </div>
@@ -46,14 +48,14 @@ export default {
     return {
       auth_data: {
         username: "",
-        password: "",
-      },
+        password: ""
+      }
     }
   },
   computed: {
     ...mapGetters({
-      isLogInError: "auth/getIsLogInError",
-    }),
+      isLogInError: "auth/getIsLogInError"
+    })
   },
   methods: {
     submitHandler(e) {
@@ -64,8 +66,8 @@ export default {
         .then(() => {
           this.$router.replace(this.$route.query.redirect || "/")
         })
-    },
-  },
+    }
+  }
 }
 </script>
 

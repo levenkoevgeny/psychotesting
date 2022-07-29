@@ -6,12 +6,24 @@
           v-if="questionType === questionTypes['RADIO']"
           class="d-flex align-items-center"
         >
-          <input class="form-check-input" type="radio" :value="answer.id" />
-          <input
-            type="text"
-            class="form-control ms-2"
-            v-model="answer.answer_text"
-          />
+
+            <input class="form-check-input" type="radio" :value="answer.id" />
+            <div class="d-flex align-items-center flex-column">
+            <input
+              type="text"
+              class="form-control ms-2"
+              v-model="answer.answer_text"
+            />
+            <div
+              :class="{
+              invalid: v$.answer.answer_text.$silentErrors.length,
+              'visually-hidden':
+                !v$.answer.answer_text.$silentErrors.length,
+            }"
+            >
+              Это поле не может быть пустым!
+            </div>
+          </div>
         </div>
         <div
           v-if="questionType === questionTypes['CHECKBOX']"
@@ -86,52 +98,81 @@
 import questionTypes from "@/components/psychotesting/questionTypes"
 import { mapGetters } from "vuex"
 import { answerAPI } from "@/api/answerAPI"
-
+import useVuelidate from "@vuelidate/core"
+import { required } from "@vuelidate/validators"
 import debounce from "lodash.debounce"
-import { useToast } from "vue-toastification"
 
 export default {
   name: "AnswerItem",
   props: {
     answer: { type: Object, required: true },
     questionType: { type: Number, required: true },
-    moreThanOneAnswer: { type: Boolean, required: true },
+    moreThanOneAnswer: { type: Boolean, required: true }
   },
   data() {
     return {
-      questionTypes: questionTypes,
+      questionTypes: questionTypes
     }
   },
   setup() {
-    const toast = useToast()
-    return { toast }
+    return { v$: useVuelidate() }
+  },
+  validations() {
+    return {
+      answer: {
+        answer_text: { required }
+      }
+    }
   },
   methods: {
-    updateAnswerData: debounce(async function () {
-      try {
-        await answerAPI.updateAnswerData(this.userToken, this.answer)
-      } catch (e) {
-        this.$parent.$emit("setIsError", true)
-      } finally {
-        this.$parent.$emit("sendSuccessToast")
+    updateAnswerData: debounce(async function() {
+      this.$parent.$emit("setIsError", false)
+      if (!this.v$.$invalid) {
+        try {
+          await answerAPI.updateAnswerData(this.userToken, this.answer)
+        } catch (e) {
+          this.$parent.$emit("setIsError", true)
+        } finally {
+          this.$parent.$emit("sendSuccessToast")
+        }
       }
-    }, 500),
+
+    }, 500)
   },
   computed: {
     ...mapGetters({
-      userToken: "auth/getToken",
+      userToken: "auth/getToken"
     }),
+    get_answer_text: function() {
+      return this.answer.answer_text
+    },
+    get_answer_has_extra_data: function() {
+      return this.answer.has_extra_data
+    }
   },
   watch: {
-    answer: {
+    get_answer_text: {
       handler(newValue, oldValue) {
-        console.log("ans")
         this.updateAnswerData()
-      },
-      deep: true,
+      }
     },
-  },
+    get_answer_has_extra_data: {
+      handler(newValue, oldValue) {
+        this.updateAnswerData()
+      }
+    }
+  }
 }
 </script>
 
-<style scoped></style>
+<style scoped>.invalid {
+  color: #dc3545;
+}
+
+.display-visible {
+  display: none;
+}
+
+.display-visible {
+  display: block;
+}</style>
