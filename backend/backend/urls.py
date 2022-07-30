@@ -31,6 +31,7 @@ router.register(r'answers', views.AnswerSelectableViewSet)
 router.register(r'questionaries', views.QuestionaryDataViewSet)
 router.register(r'test-results', views.TestResultViewSet)
 router.register(r'users', views.UserViewSet)
+router.register(r'usernames', views.UserNamesViewSet)
 
 
 urlpatterns = [

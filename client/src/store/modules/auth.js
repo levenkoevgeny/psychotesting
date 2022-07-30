@@ -13,6 +13,7 @@ const state = () => ({
   token: null,
   isLoggedIn: null,
   isLogInError: null,
+  isRegistrationError: null,
   user: null,
 })
 
@@ -26,6 +27,9 @@ const getters = {
   },
   getIsLogInError(state) {
     return state.isLogInError
+  },
+  getIsRegistrationError(state) {
+    return state.isRegistrationError
   },
   getUser(state) {
     return state.user
@@ -58,17 +62,12 @@ const actions = {
 
   async actionRegistration({ commit }, payload) {
     let { username, password } = payload
-    const response = await api.registration(username, password)
-    if (response.status >= 200 && response.status < 300) {
-      return response
-    } else if (response.status === 400) {
-      console.log("jhjh")
+    try {
+      await api.registration(username, password)
+      await router.replace({ name: "login" })
+    } catch (error) {
+      commit("setIsRegistrationError", true)
     }
-
-    // } catch (error) {
-    //   console.log("jhjkkkkkh")
-    //   console.log(error)
-    // }
   },
 
   async actionCheckLoggedIn({ state, commit, dispatch }) {
@@ -121,6 +120,9 @@ const mutations = {
   },
   setIsLogInError(state, payload) {
     state.isLogInError = payload
+  },
+  setIsRegistrationError(state, payload) {
+    state.isRegistrationError = payload
   },
 }
 

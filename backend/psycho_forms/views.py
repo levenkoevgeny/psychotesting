@@ -20,7 +20,7 @@ from jose import jwt
 from .models import Organization, TestData, Question, AnswerSelectable, QuestionaryData, TestResult
 from .models import SINGLE, MULTIPLE, TEXT, DATE, SELECT
 from .serializers import OrganizationSerializer, TestDataSerializer, QuestionSerializer, AnswerSelectableSerializer, \
-    QuestionaryDataSerializer, TestResultSerializer, UserSerializer
+    QuestionaryDataSerializer, TestResultSerializer, UserSerializer, UserNamesSerializer
 
 from datetime import date
 
@@ -236,6 +236,14 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     # permission_classes = [permissions.IsAuthenticated]
+
+
+class UserNamesViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserNamesSerializer
+    filterset_fields = {
+        'username': ['exact'],
+    }
 
 
 @api_view(['GET'])

@@ -55,5 +55,10 @@ export const api = {
       authHeaders(token)
     )
   },
+  async getUserNames(username) {
+    return axios.get(
+      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/usernames/?username=${username}`
+    )
+  },
   async updateUserData(token, userData) {},
 }

@@ -1,4 +1,7 @@
 <template>
+  <div v-if="isRegistrationError" class="alert alert-danger m-0 p-3" role="alert">
+    Ошибка регистрации!
+  </div>
   <div
     class="d-flex justify-content-center align-items-center container-fluid"
     style="background-color: #f5f5f5; height: 100vh"
@@ -32,7 +35,7 @@
       </div>
 
 
-      <form @submit="submitHandler">
+      <form @submit.prevent="submitHandler">
         <h1 class="h3 mb-3 fw-normal">Регистрация</h1>
 
         <div class="form-floating">
@@ -48,7 +51,7 @@
         <div class="form-floating">
           <input
             type="password"
-            class="form-control"
+            class="form-control form-password"
             placeholder="Password"
             v-model="auth_data.password"
             required
@@ -59,7 +62,7 @@
         <div class="form-floating">
           <input
             type="password"
-            class="form-control"
+            class="form-control form-password-confirm"
             placeholder="Password"
             v-model="auth_data.confirmPassword"
             required
@@ -67,7 +70,10 @@
           />
           <label>Повторите пароль</label>
         </div>
-        <button class="w-100 btn btn-lg btn-primary" type="submit" :disabled="v$.$invalid">
+        <button v-if="v$.$pending" class="w-100 btn btn-lg btn-primary mt-2" type="submit" :disabled="dataIsValid">
+          Проверка ...
+        </button>
+        <button v-else class="w-100 btn btn-lg btn-primary mt-2" type="submit" :disabled="dataIsValid">
           Регистрация
         </button>
         <br />
@@ -81,6 +87,8 @@
 <script>
 import useVuelidate from "@vuelidate/core"
 import { required, helpers, sameAs } from "@vuelidate/validators"
+import { mapGetters } from "vuex"
+import { api } from "@/api/auth_api"
 
 export default {
   name: "RegistrationView",
@@ -93,44 +101,54 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters({
+      isRegistrationError: "auth/getIsRegistrationError"
+    }),
+    dataIsValid: function() {
+      if (this.v$.$pending) {
+        return true
+      } else return this.v$.$invalid
+    }
+  },
   setup() {
     return { v$: useVuelidate() }
   },
   validations() {
     const passwordRegex = helpers.regex(/(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{6,}/)
+    const loginRegex = helpers.regex(/^[a-zA-Z\d]*$/)
     const same = sameAs(this.auth_data.password)
-
+    const isUserNameTaken = helpers.withAsync(async (value) => {
+      if (value === '') return true
+      const response = await api.getUserNames(value)
+      return new Promise((resolve, reject) => {setTimeout(()=> resolve(response.data.length <= 0), 1000)})
+      // return response.data.length <= 0;
+    })
 
     return {
       auth_data: {
         username: {
-          required: helpers.withMessage("Поле не может быть пустым!", required),
+          required: helpers.withMessage("Поле не может быть пустым", required),
+          isUnique: helpers.withMessage('Пользователь с таким именем уже присутствует в системе', isUserNameTaken),
+          loginRegex: helpers.withMessage('Допускаются только латинские буквы', loginRegex),
           $autoDirty: true
         },
         password: {
-          required: helpers.withMessage("Поле не может быть пустым!", required),
-          passwordRegex: helpers.withMessage("Пароль не удовлетворяет минимальным требованиям безопасности!(пароль должен состоять из не менее 6 символов в которых должны присутствовать строчные, прописные буквы, цифры, спецсимволы)", passwordRegex),
+          required: helpers.withMessage("Поле не может быть пустым", required),
+          passwordRegex: helpers.withMessage("Пароль не удовлетворяет минимальным требованиям безопасности (пароль должен состоять из не менее 6 символов в которых должны присутствовать строчные, прописные буквы, цифры, спецсимволы)", passwordRegex),
           $autoDirty: true
         },
         confirmPassword: {
           $autoDirty: true,
-          same: helpers.withMessage("Введенные пароли не совпадают!", same)
+          same: helpers.withMessage("Введенные пароли не совпадают", same)
         }
       }
     }
   },
   methods: {
     submitHandler(e) {
-      e.preventDefault()
-      e.stopPropagation()
       if (!this.v$.$invalid) {
-        this.$store
-          .dispatch("auth/actionRegistration", { ...this.auth_data })
-          .then((response) => {
-            // console.log('resp', response.data())
-            // this.$router.replace(this.$route.query.redirect || "/")
-          })
-
+        this.$store.dispatch("auth/actionRegistration", { ...this.auth_data })
       }
     }
   }
@@ -182,8 +200,14 @@ body-signin {
   border-bottom-left-radius: 0;
 }
 
-.form-signin input[type="password"] {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+.form-password {
+  border-radius: 0;
+  margin-bottom: -1px;
 }
+
+.form-password-confirm {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
 </style>
