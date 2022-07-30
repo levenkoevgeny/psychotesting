@@ -233,10 +233,8 @@ export default {
             this.userToken,
             this.question
           )
-          if (response.status >= 200 && response.status < 300) {
-            this.$emit("sendSuccessToast")
-          } else throw new Error()
-        } catch (e) {
+          this.$emit("sendSuccessToast")
+        } catch (error) {
           this.$emit("setIsError", true)
         }
       }
@@ -261,14 +259,12 @@ export default {
     async deleteAnswer(answerId, after) {
       try {
         const response = await answerAPI.deleteAnswer(this.userToken, answerId)
-        if (response.status >= 200 && response.status < 300) {
-          this.question.answers = this.question.answers.filter(
-            (answer) => answer.id !== answerId
-          )
-          this.arrangeIndexDelete(after)
-          this.$emit("sendWarningToast", `${answerId}Ответ удален!`)
-        } else throw new Error("")
-      } catch (e) {
+        this.question.answers = this.question.answers.filter(
+          (answer) => answer.id !== answerId
+        )
+        this.arrangeIndexDelete(after)
+        this.$emit("sendWarningToast", `${answerId}Ответ удален!`)
+      } catch (error) {
         this.$emit("setIsError", true)
       }
     }

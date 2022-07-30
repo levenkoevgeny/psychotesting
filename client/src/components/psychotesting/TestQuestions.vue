@@ -53,7 +53,7 @@
           class="form-control fs-6"
           placeholder="Описание теста"
           rows="1"
-          >{{ testData.extra_data }}
+        >{{ testData.extra_data }}
         </textarea>
       </div>
       <div class="mb-3">
@@ -62,7 +62,7 @@
           class="form-control fs-6"
           placeholder="Вступительный текст"
           rows="5"
-          >{{ testData.introduction }}
+        >{{ testData.introduction }}
         </textarea>
       </div>
     </div>
@@ -103,11 +103,11 @@ export default {
   data() {
     return {
       testData: {
-        test_name: null,
+        test_name: null
       },
       questionList: [],
       isLoading: true,
-      isError: false,
+      isError: false
     }
   },
   setup() {
@@ -117,16 +117,16 @@ export default {
   validations() {
     return {
       testData: {
-        test_name: { required },
-      },
+        test_name: { required }
+      }
     }
   },
   computed: {
     ...mapGetters({
-      userToken: "auth/getToken",
+      userToken: "auth/getToken"
     }),
-    sortedQuestions: function () {
-      return this.questionList.sort(function (a, b) {
+    sortedQuestions: function() {
+      return this.questionList.sort(function(a, b) {
         if (a.index_number < b.index_number) {
           return -1
         }
@@ -135,7 +135,7 @@ export default {
         }
         return 0
       })
-    },
+    }
   },
   async created() {
     try {
@@ -182,7 +182,7 @@ export default {
     sendSuccessToast() {
       this.toast.success("Сохранено!", {
         timeout: 700,
-        closeOnClick: true,
+        closeOnClick: true
       })
     },
     sendWarningToast(warningText) {
@@ -199,14 +199,12 @@ export default {
             index_number: 1,
             is_active: true,
             has_required_answer: false,
-            is_common_for_all_tests: false,
+            is_common_for_all_tests: false
           },
           afterNumber
         )
-        if (response.status >= 200 && response.status < 300) {
-          this.arrangeIndexAdd(afterNumber)
-          this.questionList.push(response.data)
-        } else throw new Error("")
+        this.arrangeIndexAdd(afterNumber)
+        this.questionList.push(response.data)
       } catch (e) {
         this.isError = true
       }
@@ -217,15 +215,13 @@ export default {
           this.userToken,
           questionId
         )
-        if (response.status >= 200 && response.status < 300) {
-          this.arrangeIndexAdd(afterNumber)
-          this.questionList.push(response.data)
-        } else throw new Error("")
+        this.arrangeIndexAdd(afterNumber)
+        this.questionList.push(response.data)
       } catch (error) {
         this.isError = true
       }
     },
-    updateTestData: debounce(async function () {
+    updateTestData: debounce(async function() {
       this.isError = false
       if (!this.v$.$invalid) {
         try {
@@ -233,9 +229,7 @@ export default {
             this.userToken,
             this.testData
           )
-          if (response.status >= 200 && response.status < 300) {
-            this.sendSuccessToast()
-          } else throw new Error("")
+          this.sendSuccessToast()
         } catch (error) {
           this.isError = true
         }
@@ -248,29 +242,27 @@ export default {
           this.userToken,
           questionId
         )
-        if (response.status >= 200 && response.status < 300) {
-          this.questionList = this.questionList.filter(
-            (question) => question.id !== questionId
-          )
-          this.arrangeIndexDelete(afterNumber)
-          this.sendWarningToast("Вопрос удален!")
-        } else throw new Error("")
-      } catch (e) {
+        this.questionList = this.questionList.filter(
+          (question) => question.id !== questionId
+        )
+        this.arrangeIndexDelete(afterNumber)
+        this.sendWarningToast("Вопрос удален!")
+      } catch (error) {
         this.isError = true
       } finally {
       }
-    },
+    }
   },
   watch: {
     testData: {
       handler(newValue, oldValue) {
         if (oldValue["test_name"] != null) {
-            this.updateTestData()
+          this.updateTestData()
         }
       },
-      deep: true,
-    },
-  },
+      deep: true
+    }
+  }
 }
 </script>
 
@@ -278,9 +270,11 @@ export default {
 .invalid {
   color: #dc3545;
 }
+
 .display-visible {
   display: none;
 }
+
 .display-visible {
   display: block;
 }

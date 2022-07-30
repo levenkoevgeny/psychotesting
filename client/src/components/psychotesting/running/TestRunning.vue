@@ -58,20 +58,14 @@ export default {
     async submitForm(e) {
       this.isLoading = true
       e.preventDefault()
-
       try {
         const response = await axios.post(
           `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-running/save/`,
           new FormData(e.target)
         )
-        if (response.status == 200) {
-          // window.location.href = "http://localhost:8080/tests/running/1"
-          await this.$router.replace({ name: "tests-running-success" })
-        } else {
-          throw new Error("POST data error")
-        }
+        await this.$router.replace({ name: "tests-running-success" })
       } catch (error) {
-        console.log(error.text)
+        console.log(error)
       } finally {
         this.isLoading = false
       }
