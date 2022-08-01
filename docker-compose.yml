@@ -8,15 +8,16 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 12345678
       MYSQL_DATABASE: psychotesting
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
   backend:
     build:
-      context: ./server
+      context: ./backend
     command: >
       sh -c "python manage.py collectstatic --noinput &&
              python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./server:/code
+      - ./backend:/code
     ports:
       - "8000:8000"
     environment:
@@ -26,3 +27,12 @@ services:
       MYSQL_HOST: mysql
     depends_on:
       - mysql
+  frontend:
+    build:
+      context: ./client
+    command: sh -c "serve -s dist"
+    ports:
+      - 3000:3000
+    working_dir: /app
+    depends_on:
+      - backend

@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'rest_framework_simplejwt',
-    'django_user_agents',
     'psycho_forms.apps.PsychoFormsConfig'
 ]
 
@@ -129,7 +128,7 @@ SIMPLE_JWT = {
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES_ = {
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.environ.get('MYSQL_DB'),
@@ -140,7 +139,7 @@ DATABASES_ = {
     }
 }
 
-DATABASES = {
+DATABASES__ = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
