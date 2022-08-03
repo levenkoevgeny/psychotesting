@@ -5,6 +5,7 @@
   <div
     v-if="isLoading"
     class="d-flex justify-content-center align-items-center"
+    style="height: 70vh"
   >
     <Spinner />
   </div>

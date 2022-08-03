@@ -292,7 +292,10 @@ export default {
     },
     get_question_type: function() {
       return this.question.question_type
-    }
+    },
+    get_has_required_answer:function() {
+      return this.question.has_required_answer
+    },
   },
   watch: {
     get_question_text: {
@@ -304,7 +307,12 @@ export default {
       handler(newValue, oldValue) {
         this.updateQuestionData()
       }
-    }
+    },
+    get_has_required_answer: {
+      handler(newValue, oldValue) {
+        this.updateQuestionData()
+      }
+    },
   }
 }
 </script>

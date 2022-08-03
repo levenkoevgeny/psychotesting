@@ -14,7 +14,7 @@
     <label class="form-check-label">
       {{ answer.answer_text }}
     </label>
-    <div v-if="answer.id === radioValue">
+    <div v-if="answer.id === radioValue && answer.has_extra_data">
       <input
         type="text"
         class="form-control"
