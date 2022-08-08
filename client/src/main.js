@@ -13,6 +13,7 @@ import { faPlusSquare } from "@fortawesome/free-solid-svg-icons"
 import { faSquarePollVertical } from "@fortawesome/free-solid-svg-icons"
 import Toast from "vue-toastification"
 import "vue-toastification/dist/index.css"
+import "bootstrap/dist/js/bootstrap.bundle.min"
 
 library.add(faClone)
 library.add(faTrashCan)

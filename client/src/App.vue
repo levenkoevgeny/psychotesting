@@ -8,6 +8,7 @@
 import CommonNav from "@/components/common/CommonNav"
 import { mapState } from "vuex"
 
+
 export default {
   components: { CommonNav },
   computed: mapState({
@@ -16,6 +17,7 @@ export default {
 }
 </script>
 <style>
+
 .test-data-top-border {
   border-top: 15px solid mediumpurple;
 }

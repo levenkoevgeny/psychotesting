@@ -93,7 +93,8 @@ class TestDataViewSet(viewsets.ModelViewSet):
         test_data = get_object_or_404(TestData, pk=pk)
         result_list_all = TestResult.objects.filter(questionary_data__test=test_data)
         for questionary in QuestionaryData.objects.filter(test=test_data):
-            result_dict = {'date': str(questionary.data_created.date())}
+
+            result_dict = {'date': str(questionary.data_created.date()), 'id': questionary.id}
             for question in test_data.question_set.all():
                 question_results = result_list_all.filter(questionary_data=questionary, question=question)
                 res_str = ''
@@ -134,7 +135,7 @@ class TestDataViewSet(viewsets.ModelViewSet):
         test_data = get_object_or_404(TestData, pk=pk)
         result_list_all = TestResult.objects.filter(questionary_data__test=test_data)
         for questionary in QuestionaryData.objects.filter(test=test_data):
-            result_dict = {'date': str(questionary.data_created.date())}
+            result_dict = {'date': str(questionary.data_created.date()), 'id': questionary.id}
             for question in test_data.question_set.all():
                 question_results = result_list_all.filter(questionary_data=questionary, question=question)
                 for answer in question.answers.all():
