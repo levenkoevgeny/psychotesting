@@ -50,6 +50,14 @@
               Ответы "1" "0"
             </button>
           </li>
+          <li>
+            <button
+              class="dropdown-item"
+              @click="replaceView('result_index')"
+            >
+              Ответы "номер ответа"
+            </button>
+          </li>
         </ul>
       </div>
       <p>Количество ответов - <b>{{this.resultsList.length}}</b></p>

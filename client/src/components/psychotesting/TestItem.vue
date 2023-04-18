@@ -71,6 +71,18 @@
               Ответы "1" "0"
             </router-link>
           </li>
+          <li>
+            <router-link
+              :to="{
+                name: 'result_index',
+                params: { id: testData.id },
+              }"
+              class="dropdown-item"
+            >
+              Ответы "номер ответа"
+            </router-link>
+          </li>
+
         </ul>
         <button
           type="button"

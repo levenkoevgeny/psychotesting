@@ -10,7 +10,7 @@
     <Spinner />
   </div>
   <div v-else class="container-fluid">
-    <div v-if="questionList.length > 0">
+    <div v-if="questionList.length > 0" class="my-3">
       <div class="dropdown my-3">
         <button
           class="btn btn-outline-secondary dropdown-toggle"
@@ -21,12 +21,10 @@
         >
           Режим просмотра
         </button>
-        <button v-if="this.checkedIds.length == 0" type="button" class="btn btn-outline-danger ms-2"
-                @click="deleteHandler" :disabled="isCheckedIdsEmpty">Удалить выбранные
-        </button>
-        <button v-else type="button" class="btn btn-outline-danger ms-2" @click="deleteHandler"
-                :disabled="isCheckedIdsEmpty">Удалить выбранные {{ this.checkedIds.length }}
-        </button>
+
+        <button v-if="this.checkedIds.length == 0" type="button" class="btn btn-outline-danger ms-2" @click="deleteHandler" :disabled="isCheckedIdsEmpty">Удалить выбранные</button>
+        <button v-else type="button" class="btn btn-outline-danger ms-2" @click="deleteHandler" :disabled="isCheckedIdsEmpty">Удалить выбранные {{this.checkedIds.length}}</button>
+
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
           <li>
             <button
@@ -62,39 +60,21 @@
           </li>
         </ul>
       </div>
+      <p>Количество ответов - <b>{{this.resultsList.length}}</b></p>
       <table
         class="table component-white-background table-bordered table-striped table-hover"
       >
         <thead class="table-warning">
         <tr>
-          <th rowspan="2"></th>
-          <th rowspan="2">Дата</th>
+          <th></th>
+          <th>Дата</th>
           <th
             scope="col"
-            :colspan="question.answers.length"
             v-for="question in sortedQuestions"
             :key="question.id"
           >
             {{ question.question_text }}
           </th>
-        </tr>
-        <tr>
-          <template v-for="question in sortedQuestions" :key="question.id">
-            <th
-              v-for="answer in question.answers"
-              :key="answer.id"
-              v-if="
-                  [
-                    questionTypes['RADIO'],
-                    questionTypes['CHECKBOX'],
-                    questionTypes['SELECT'],
-                  ].includes(question.question_type)
-                "
-            >
-              {{ answer.answer_text }}
-            </th>
-            <th v-else></th>
-          </template>
         </tr>
         </thead>
         <tbody>
@@ -102,23 +82,12 @@
           <td class="text-center">
             <input class="form-check-input" type="checkbox" :value="result.id" @change="checkboxHandler">
           </td>
-          <td>{{ result["date"] }}</td>
-          <template v-for="question in sortedQuestions" :key="question.id">
-            <td
-              v-for="answer in question.answers"
-              :key="answer.id"
-              v-if="
-                  [
-                    questionTypes['RADIO'],
-                    questionTypes['CHECKBOX'],
-                    questionTypes['SELECT'],
-                  ].includes(question.question_type)
-                "
-            >
-              {{ result[answer.id] }}
-            </td>
-            <td v-else></td>
-          </template>
+          <td>
+            <nobr>{{ result["date"] }} {{ result.id }}</nobr>
+          </td>
+          <td v-for="question in sortedQuestions" :key="question.id">
+            {{ result[question.id] }}
+          </td>
         </tr>
         </tbody>
       </table>
@@ -127,21 +96,18 @@
 </template>
 
 <script>
-import Spinner from "@/components/common/Spinner"
 import { mapGetters } from "vuex"
 import { testDataAPI } from "@/api/testDataApi"
 import { questionsAPI } from "@/api/questionsAPI"
-import questionTypes from "@/components/psychotesting/questionTypes"
-
+import Spinner from "@/components/common/Spinner"
 export default {
-  name: "TestResultAnswers_1_0",
+  name: "TestResultAnswersIndex",
   components: { Spinner },
   data() {
     return {
       testData: null,
       questionList: [],
       resultsList: [],
-      questionTypes: questionTypes,
       isLoading: true,
       isError: false,
       checkedIds: []
@@ -174,10 +140,11 @@ export default {
       )
       this.questionList = await questionsResponse.data
 
-      const testDataResultsResponse = await testDataAPI.getTestDataResult_1_0(
-        this.userToken,
-        this.$route.params.id
-      )
+      const testDataResultsResponse =
+        await testDataAPI.getTestDataResultIndex(
+          this.userToken,
+          this.$route.params.id
+        )
       this.resultsList = testDataResultsResponse.data
 
       const testDataResponse = await testDataAPI.getTestData(
@@ -224,4 +191,6 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>

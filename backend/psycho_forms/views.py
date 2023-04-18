@@ -118,6 +118,36 @@ class TestDataViewSet(viewsets.ModelViewSet):
         return Response(response_results_list, status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'])
+    def results_index(self, request, pk=None):
+        response_results_list = []
+        test_data = get_object_or_404(TestData, pk=pk)
+        result_list_all = TestResult.objects.filter(questionary_data__test=test_data)
+        for questionary in QuestionaryData.objects.filter(test=test_data):
+
+            result_dict = {'date': str(questionary.data_created.date()), 'id': questionary.id}
+            for question in test_data.question_set.all():
+                question_results = result_list_all.filter(questionary_data=questionary, question=question)
+                res_str = ''
+                if question_results.count() > 0:
+                    for q_r in question_results:
+                        if q_r.answer_selectable:
+                            res_str = res_str + str(q_r.answer_selectable.index_number)
+                            res_str += '; '
+                        if q_r.answer_text:
+                            res_str = res_str + str(q_r.answer_text)
+                            res_str += '; '
+                        if q_r.answer_date:
+                            res_str = res_str + str(q_r.answer_date)
+                            res_str += '; '
+                        if q_r.extra_data:
+                            res_str += 'пояснение к ответу - '
+                            res_str = res_str + str(q_r.extra_data)
+                            res_str += '; '
+                result_dict[question.id] = res_str
+            response_results_list.append(result_dict)
+        return Response(response_results_list, status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'])
     def results_answers_count(self, request, pk=None):
         response_results_dict = {}
         test_data = get_object_or_404(TestData, pk=pk)

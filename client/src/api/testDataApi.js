@@ -30,6 +30,14 @@ export const testDataAPI = {
     )
   },
 
+  async getTestDataResultIndex(token, testId) {
+    return axios.post(
+      `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-data/${testId}/results_index/`,
+      {},
+      authHeaders(token)
+    )
+  },
+
   async getTestDataResultAnswersCount(token, testId) {
     return axios.post(
       `${process.env.VUE_APP_BACKEND_PROTOCOL}://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/test-data/${testId}/results_answers_count/`,

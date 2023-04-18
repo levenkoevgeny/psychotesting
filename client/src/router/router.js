@@ -12,6 +12,7 @@ import Success from "@/components/psychotesting/running/Success"
 import TestResultsFullText from "@/components/psychotesting/results/TestResultsFullText"
 import TestResultsAnswersCount from "@/components/psychotesting/results/TestResultsAnswersCount"
 import TestResultAnswers_1_0 from "@/components/psychotesting/results/TestResultAnswers_1_0"
+import TestResultAnswersIndex from "@/components/psychotesting/results/TestResultAnswersIndex"
 
 import store from "@/store"
 
@@ -55,6 +56,12 @@ const routes = [
     path: "/tests/result_full_text/:id",
     name: "test_result_full_text",
     component: TestResultsFullText,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/tests/result_index/:id",
+    name: "result_index",
+    component: TestResultAnswersIndex,
     meta: { requiresAuth: true },
   },
   {
